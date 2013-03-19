@@ -1,4 +1,4 @@
-tus-ios-android
-===============
+tus-android-client
+==================
 
 The tus client for android.
