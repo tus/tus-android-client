@@ -1,6 +1,7 @@
 package io.tus.android.example;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
@@ -15,6 +16,7 @@ import android.widget.TextView;
 import java.net.URL;
 
 import io.tus.android.client.TusClient;
+import io.tus.android.client.TusPreferencesURLStore;
 import io.tus.android.client.TusUpload;
 import io.tus.android.client.TusUploader;
 
@@ -33,8 +35,9 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         try {
-            client = new TusClient(new URL("http://192.168.2.44:1080/files/"));
-            client.enableResuming(this);
+            SharedPreferences pref = getSharedPreferences("tus", 0);
+            client = new TusClient(new URL("http://192.168.2.36:1080/files/"));
+            client.enableResuming(new TusPreferencesURLStore(pref));
         } catch(Exception e) {
             e.printStackTrace();
         }

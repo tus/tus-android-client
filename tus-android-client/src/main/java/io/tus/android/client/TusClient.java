@@ -14,7 +14,7 @@ public class TusClient {
 
     private URL uploadCreationURL;
     private boolean resumingEnabled;
-    private Activity activity;
+    private TusURLStore urlStore;
 
     public TusClient() {
 
@@ -32,14 +32,14 @@ public class TusClient {
         return uploadCreationURL;
     }
 
-    public void enableResuming(Activity activity) {
+    public void enableResuming(TusURLStore urlStore) {
         resumingEnabled = true;
-        this.activity = activity;
+        this.urlStore = urlStore;
     }
 
     public void disableResuming() {
         resumingEnabled = false;
-        this.activity = null;
+        this.urlStore = null;
     }
 
     public TusUploader createUpload(TusUpload upload) throws IOException {
@@ -53,13 +53,15 @@ public class TusClient {
         String urlStr = connection.getHeaderField("Location");
         URL uploadURL = new URL(urlStr);
 
-        storeFingerprint(upload, uploadURL);
+        if(resumingEnabled) {
+            urlStore.set(upload.getFingerprint(), uploadURL);
+        }
 
         return new TusUploader(this, uploadURL, upload.getInputStream(), 0);
     }
 
     public TusUploader resumeUpload(TusUpload upload) throws FingerprintNotFoundException, IOException {
-        URL uploadURL = readFingerprint(upload);
+        URL uploadURL = urlStore.get(upload.getFingerprint());
         if(uploadURL == null) {
             throw new FingerprintNotFoundException(upload.getFingerprint());
         }
@@ -87,72 +89,5 @@ public class TusClient {
     public void prepareConnection(URLConnection connection) {
         connection.addRequestProperty("Tus-Resumable", TUS_VERSION);
         // TODO: add custom headers
-    }
-
-    private void storeFingerprint(TusUpload upload, URL uploadURL) {
-        if(!resumingEnabled) {
-            return;
-        }
-
-        String fingerprint = upload.getFingerprint();
-        String url = uploadURL.toString();
-
-        // Ignore empty fingerprints
-        if(fingerprint.length() == 0) {
-            return;
-        }
-
-        SharedPreferences pref = activity.getSharedPreferences("tus", 0);
-        SharedPreferences.Editor editor = pref.edit();
-        editor.putString(fingerprint, url);
-        editor.commit();
-    }
-
-    private URL readFingerprint(TusUpload upload) {
-        if(!resumingEnabled) {
-            return null;
-        }
-
-        String fingerprint = upload.getFingerprint();
-
-        // Ignore empty fingerprints
-        if(fingerprint.length() == 0) {
-            return null;
-        }
-
-        SharedPreferences pref = activity.getSharedPreferences("tus", 0);
-        String urlStr = pref.getString(fingerprint, "");
-
-        // No entry was found
-        if(urlStr.length() == 0) {
-            return null;
-        }
-
-        // Ignore invalid URLs
-        try {
-            return new URL(urlStr);
-        } catch(MalformedURLException e) {
-            removeFingerprint(upload);
-            return null;
-        }
-
-    }
-
-    private void removeFingerprint(TusUpload upload) {
-        if(!resumingEnabled) {
-            return;
-        }
-
-        String fingerprint = upload.getFingerprint();
-
-        // Ignore empty fingerprints
-        if(fingerprint.length() == 0) {
-            return;
-        }
-
-        SharedPreferences pref = activity.getSharedPreferences("tus", 0);
-        SharedPreferences.Editor editor = pref.edit();
-        editor.remove(fingerprint);
-        editor.commit();
     }
 }
