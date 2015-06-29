@@ -56,7 +56,11 @@ public class TusClient {
         return new TusUploader(this, uploadURL, upload.getInputStream(), 0);
     }
 
-    public TusUploader resumeUpload(TusUpload upload) throws FingerprintNotFoundException, IOException {
+    public TusUploader resumeUpload(TusUpload upload) throws FingerprintNotFoundException, ResumingNotEnabledException, IOException {
+        if(!resumingEnabled) {
+            throw new ResumingNotEnabledException();
+        }
+
         URL uploadURL = urlStore.get(upload.getFingerprint());
         if(uploadURL == null) {
             throw new FingerprintNotFoundException(upload.getFingerprint());
@@ -78,6 +82,8 @@ public class TusClient {
         try {
             return resumeUpload(upload);
         } catch(FingerprintNotFoundException e) {
+            return createUpload(upload);
+        } catch(ResumingNotEnabledException e) {
             return createUpload(upload);
         }
     }
