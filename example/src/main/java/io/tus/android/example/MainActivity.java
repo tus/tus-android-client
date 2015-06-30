@@ -1,5 +1,6 @@
 package io.tus.android.example;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -39,7 +40,7 @@ public class MainActivity extends ActionBarActivity {
             client = new TusClient(new URL("http://192.168.2.36:1080/files/"));
             client.enableResuming(new TusPreferencesURLStore(pref));
         } catch(Exception e) {
-            e.printStackTrace();
+            showError(e);
         }
 
         status = (TextView) findViewById(R.id.status);
@@ -67,7 +68,7 @@ public class MainActivity extends ActionBarActivity {
             uploadTask = new UploadTask(this, client, upload);
             uploadTask.execute(new Void[0]);
         } catch(Exception e) {
-            e.printStackTrace();
+            showError(e);
         }
 
     }
@@ -92,6 +93,7 @@ public class MainActivity extends ActionBarActivity {
         private MainActivity activity;
         private TusClient client;
         private TusUpload upload;
+        private Exception exception;
 
         public UploadTask(MainActivity activity, TusClient client, TusUpload upload) {
             this.activity = activity;
@@ -113,6 +115,10 @@ public class MainActivity extends ActionBarActivity {
 
         @Override
         protected void onCancelled() {
+            if(exception != null) {
+                activity.showError(exception);
+            }
+
             activity.setAbortButtonEnabled(false);
         }
 
@@ -140,7 +146,8 @@ public class MainActivity extends ActionBarActivity {
                 uploader.finish();
 
             } catch(Exception e) {
-                e.printStackTrace();
+                exception = e;
+                cancel(true);
             }
             return null;
         }
@@ -156,6 +163,15 @@ public class MainActivity extends ActionBarActivity {
         public void onClick(View view) {
             activity.abortUpload();
         }
+    }
+
+    private void showError(Exception e) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Internal error");
+        builder.setMessage(e.getMessage());
+        AlertDialog dialog = builder.create();
+        dialog.show();
+        e.printStackTrace();
     }
 
     @Override
