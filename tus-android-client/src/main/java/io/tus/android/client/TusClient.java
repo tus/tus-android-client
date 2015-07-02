@@ -38,15 +38,24 @@ public class TusClient {
         this.urlStore = null;
     }
 
-    public TusUploader createUpload(TusUpload upload) throws IOException {
+    public TusUploader createUpload(TusUpload upload) throws ProtocolException, IOException {
         HttpURLConnection connection = (HttpURLConnection) uploadCreationURL.openConnection();
         connection.setRequestMethod("POST");
         prepareConnection(connection);
 
         connection.addRequestProperty("Upload-Length", Long.toString(upload.getSize()));
         connection.connect();
-        // TODO: error handling
+
+        int responseCode = connection.getResponseCode();
+        if(!(responseCode >= 200 && responseCode < 300)) {
+            throw new ProtocolException("unexpected status code (" + responseCode + ") while creating upload");
+        }
+
         String urlStr = connection.getHeaderField("Location");
+        if(urlStr.length() == 0) {
+            throw new ProtocolException("missing upload URL in response for creating upload");
+        }
+
         URL uploadURL = new URL(urlStr);
 
         if(resumingEnabled) {
@@ -56,7 +65,7 @@ public class TusClient {
         return new TusUploader(this, uploadURL, upload.getInputStream(), 0);
     }
 
-    public TusUploader resumeUpload(TusUpload upload) throws FingerprintNotFoundException, ResumingNotEnabledException, IOException {
+    public TusUploader resumeUpload(TusUpload upload) throws FingerprintNotFoundException, ResumingNotEnabledException, ProtocolException, IOException {
         if(!resumingEnabled) {
             throw new ResumingNotEnabledException();
         }
@@ -71,14 +80,22 @@ public class TusClient {
         prepareConnection(connection);
 
         connection.connect();
-        // TODO: error handling (+ remove fingerprint)
+
+        int responseCode = connection.getResponseCode();
+        if(!(responseCode >= 200 && responseCode < 300)) {
+            throw new ProtocolException("unexpected status code (" + responseCode + ") while resuming upload");
+        }
+
         String offsetStr = connection.getHeaderField("Upload-Offset");
+        if(offsetStr.length() == 0) {
+            throw new ProtocolException("missing upload offset in response for resuming upload");
+        }
         long offset = Long.parseLong(offsetStr);
 
         return new TusUploader(this, uploadURL, upload.getInputStream(), offset);
     }
 
-    public TusUploader resumeOrCreateUpload(TusUpload upload) throws IOException {
+    public TusUploader resumeOrCreateUpload(TusUpload upload) throws ProtocolException, IOException {
         try {
             return resumeUpload(upload);
         } catch(FingerprintNotFoundException e) {

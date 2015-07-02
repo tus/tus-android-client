@@ -62,9 +62,14 @@ public class TusUploader {
         return uploadURL;
     }
 
-    public void finish() throws IOException {
+    public void finish() throws ProtocolException, IOException {
         input.close();
         output.close();
         connection.disconnect();
+
+        int responseCode = connection.getResponseCode();
+        if(!(responseCode >= 200 && responseCode < 300)) {
+            throw new ProtocolException("unexpected status code (" + responseCode + ") while uploading chunk");
+        }
     }
 }
