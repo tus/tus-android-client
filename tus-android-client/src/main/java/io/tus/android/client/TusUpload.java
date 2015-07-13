@@ -36,6 +36,8 @@ public class TusUpload {
         input = activity.getContentResolver().openInputStream(uri);
 
         fingerprint = String.format("%s-%d", uri.toString(), size);
+
+        cursor.close();
     }
 
     public long getSize() {
