@@ -6,3 +6,5 @@ android:
         - android-21
         # Build tools version
         - build-tools-21.1.1
+script:
+    - ./gradlew test
