@@ -44,7 +44,7 @@ public class TusPreferencesURLStore implements TusURLStore {
 
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString(fingerprint, urlStr);
-        editor.commit();
+        editor.apply();
     }
 
     public void remove(String fingerprint) {
@@ -55,6 +55,6 @@ public class TusPreferencesURLStore implements TusURLStore {
 
         SharedPreferences.Editor editor = preferences.edit();
         editor.remove(fingerprint);
-        editor.commit();
+        editor.apply();
     }
 }
