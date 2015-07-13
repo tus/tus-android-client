@@ -6,5 +6,3 @@ android:
         - android-21
         # Build tools version
         - build-tools-21.1.1
-        # Android image for emulator running tests
-        - sys-img-armeabi-v7a-android-21
