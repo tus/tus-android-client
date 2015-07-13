@@ -21,6 +21,8 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:21.0.3'
+    testCompile 'org.robolectric:robolectric:2.4'
+    testCompile 'junit:junit:4.12'
 }
 
 task jar(type: Jar) {
