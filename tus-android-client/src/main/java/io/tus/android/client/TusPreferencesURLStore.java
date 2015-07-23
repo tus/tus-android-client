@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import io.tus.java.client.TusURLStore;
+
 public class TusPreferencesURLStore implements TusURLStore {
     private SharedPreferences preferences;
 

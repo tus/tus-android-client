@@ -16,10 +16,11 @@ import android.widget.TextView;
 
 import java.net.URL;
 
-import io.tus.android.client.TusClient;
+import io.tus.android.client.TusAndroidUpload;
 import io.tus.android.client.TusPreferencesURLStore;
-import io.tus.android.client.TusUpload;
-import io.tus.android.client.TusUploader;
+import io.tus.java.client.TusClient;
+import io.tus.java.client.TusUpload;
+import io.tus.java.client.TusUploader;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -37,7 +38,8 @@ public class MainActivity extends ActionBarActivity {
 
         try {
             SharedPreferences pref = getSharedPreferences("tus", 0);
-            client = new TusClient(new URL("http://192.168.2.36:1080/files/"));
+            client = new TusClient();
+            client.setUploadCreationURL(new URL("http://192.168.2.36:1080/files/"));
             client.enableResuming(new TusPreferencesURLStore(pref));
         } catch(Exception e) {
             showError(e);
@@ -64,7 +66,7 @@ public class MainActivity extends ActionBarActivity {
 
     private void beginUpload(Uri uri) {
         try {
-            TusUpload upload = new TusUpload(uri, this);
+            TusUpload upload = new TusAndroidUpload(uri, this);
             uploadTask = new UploadTask(this, client, upload);
             uploadTask.execute(new Void[0]);
         } catch(Exception e) {
