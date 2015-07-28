@@ -11,7 +11,7 @@ import io.tus.java.client.TusUpload;
 
 public class TusAndroidUpload extends TusUpload {
     public TusAndroidUpload(Uri uri, Activity activity) throws FileNotFoundException {
-        Cursor cursor = activity.getContentResolver().query(uri, null, null, null, null);
+        Cursor cursor = activity.getContentResolver().query(uri, new String[]{OpenableColumns.SIZE}, null, null, null);
         int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
         cursor.moveToFirst();
         long size = cursor.getLong(sizeIndex);
