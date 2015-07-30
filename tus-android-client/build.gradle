@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'maven'
 
 android {
     compileSdkVersion 21
@@ -26,6 +27,45 @@ dependencies {
     testCompile 'junit:junit:4.12'
 }
 
-task jar(type: Jar) {
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
     from android.sourceSets.main.java.srcDirs
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+task createPom {
+    pom {
+        project {
+            groupId 'io.tus.android.client'
+            artifactId 'tus-android-client'
+            name 'tus-android-client'
+            version project.getProperties().get('pomVersion')
+            packaging 'pom'
+            description 'Android client for tus, the resumable file uploading protocol.'
+            url 'http://tus.io'
+
+            scm {
+                url 'https://github.com/tus/tus-android-client'
+                connection 'https://github.com/tus/tus-android-client'
+                developerConnection 'https://github.com/tus/tus-android-client'
+            }
+
+            inceptionYear '2015'
+            licenses {
+                license {
+                    name 'The MIT License (MIT)'
+                    url 'http://opensource.org/licenses/MIT'
+                }
+            }
+        }
+    }.writeTo("build/libs/pom.xml")
 }
