@@ -21,6 +21,6 @@ deploy:
 env:
   global:
   # GitHub
-  - secure: "CFDM+IJQq8UCcf4aaMd5Opa4Cw0vWMIDZsG2kVRMAEvfjURKlW657hZZY+5Vcv4A6OyF3+C9X7WppkY0K+HcmpQwjFHy9DgsjbyTgbitqGUinFdwxAqVHZlhtQX9VFpBf1ZZZYc3cZkzMXuzIqe8VLJCwqZ1faBP1ve6ROEt1kw="
+  - secure: "hvVpRgZ9sUbM5qQcG4ZQFOMY1LmIHgnzv5CalOXl2PCHnZXF/w8+hFoaYbrN273Wq7B7WDixgOLX2uZyuq1e34w9AAD1kbz9XJz7K3RUEPQXNcGI/tcHGi8UmZK14JvqS0/oaag3INWbeQGHf/iPR1tbeW/4KUhCHj8fy04k34c="
   # Bintray
   - secure: "FuB9QFkFCHfGOdtygHwekh/bBFIiLxKAhYBEYhic8VvZjtOkVW+Epz4uuywhioMAm8dFQUJP4HemnaKekhhO1HJXTQ2dw1da6Y0+7oRO41cTR/yexsls88G+DZ0ssr/ivkzkrF3QPGl7SV0ItYhgCx7whbELAWPboxYqDzEPVJY="
