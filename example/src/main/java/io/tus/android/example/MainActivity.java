@@ -39,7 +39,7 @@ public class MainActivity extends ActionBarActivity {
         try {
             SharedPreferences pref = getSharedPreferences("tus", 0);
             client = new TusClient();
-            client.setUploadCreationURL(new URL("http://192.168.2.36:1080/files/"));
+            client.setUploadCreationURL(new URL("http://master.tus.io:8080/files/"));
             client.enableResuming(new TusPreferencesURLStore(pref));
         } catch(Exception e) {
             showError(e);
