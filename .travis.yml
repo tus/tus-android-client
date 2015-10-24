@@ -3,9 +3,9 @@ language: android
 android:
     components:
         # SDK version
-        - android-21
+        - android-22
         # Build tools version
-        - build-tools-21.1.1
+        - build-tools-22.0.1
 script:
     - ./gradlew test
 deploy:
