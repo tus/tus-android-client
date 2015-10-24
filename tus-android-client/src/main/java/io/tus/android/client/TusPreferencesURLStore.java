@@ -1,6 +1,7 @@
 package io.tus.android.client;
 
 import android.content.SharedPreferences;
+import android.os.Build;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -46,7 +47,11 @@ public class TusPreferencesURLStore implements TusURLStore {
 
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString(fingerprint, urlStr);
-        editor.apply();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+            editor.apply();
+        } else {
+            editor.commit();
+        }
     }
 
     public void remove(String fingerprint) {
@@ -54,9 +59,12 @@ public class TusPreferencesURLStore implements TusURLStore {
         if(fingerprint.length() == 0) {
             return;
         }
-
         SharedPreferences.Editor editor = preferences.edit();
         editor.remove(fingerprint);
-        editor.apply();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+            editor.apply();
+        } else {
+            editor.commit();
+        }
     }
 }
