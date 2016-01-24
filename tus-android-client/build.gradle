@@ -21,7 +21,7 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'io.tus.java.client:tus-java-client:0.+'
+    compile 'io.tus.java.client:tus-java-client:0.2.0'
     testCompile 'org.robolectric:robolectric:2.4'
     testCompile 'junit:junit:4.12'
 }
