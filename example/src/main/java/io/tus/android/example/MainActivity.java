@@ -139,10 +139,12 @@ public class MainActivity extends ActionBarActivity {
                 long totalBytes = upload.getSize();
                 long uploadedBytes = uploader.getOffset();
 
-                while(!isCancelled() && uploader.uploadChunk(1024) > 0) {
+                // Upload file in 10KB chunks
+                uploader.setChunkSize(10 * 1024);
+
+                while(!isCancelled() && uploader.uploadChunk() > 0) {
                     uploadedBytes = uploader.getOffset();
                     publishProgress(uploadedBytes, totalBytes);
-                    Thread.sleep(100);
                 }
 
                 uploader.finish();
