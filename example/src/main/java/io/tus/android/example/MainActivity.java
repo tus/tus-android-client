@@ -27,9 +27,11 @@ public class MainActivity extends ActionBarActivity {
     private final int REQUEST_FILE_SELECT = 1;
     private TusClient client;
     private TextView status;
-    private Button abortButton;
+    private Button pauseButton;
+    private Button resumeButton;
     private UploadTask uploadTask;
     private ProgressBar progressBar;
+    private Uri fileUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,27 +62,45 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
-        abortButton = (Button) findViewById(R.id.abort_button);
-        abortButton.setOnClickListener(new AbortButtonListener(this));
+        pauseButton = (Button) findViewById(R.id.pause_button);
+        pauseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pauseUpload();
+            }
+        });
+
+        resumeButton = (Button) findViewById(R.id.resume_button);
+        resumeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                resumeUpload();
+            }
+        });
     }
 
     private void beginUpload(Uri uri) {
+        fileUri = uri;
+        resumeUpload();
+    }
+
+    public void setPauseButtonEnabled(boolean enabled) {
+        pauseButton.setEnabled(enabled);
+        resumeButton.setEnabled(!enabled);
+    }
+
+    public void pauseUpload() {
+        uploadTask.cancel(false);
+    }
+
+    public void resumeUpload() {
         try {
-            TusUpload upload = new TusAndroidUpload(uri, this);
+            TusUpload upload = new TusAndroidUpload(fileUri, this);
             uploadTask = new UploadTask(this, client, upload);
             uploadTask.execute(new Void[0]);
-        } catch(Exception e) {
+        } catch (Exception e) {
             showError(e);
         }
-
-    }
-
-    public void setAbortButtonEnabled(boolean enabled) {
-        abortButton.setEnabled(enabled);
-    }
-
-    public void abortUpload() {
-        uploadTask.cancel(false);
     }
 
     private void setStatus(String text) {
@@ -106,13 +126,13 @@ public class MainActivity extends ActionBarActivity {
         @Override
         protected void onPreExecute() {
             activity.setStatus("Upload selected...");
-            activity.setAbortButtonEnabled(true);
+            activity.setPauseButtonEnabled(true);
         }
 
         @Override
         protected void onPostExecute(URL uploadURL) {
             activity.setStatus("Upload finished!\n" + uploadURL.toString());
-            activity.setAbortButtonEnabled(false);
+            activity.setPauseButtonEnabled(false);
         }
 
         @Override
@@ -121,7 +141,7 @@ public class MainActivity extends ActionBarActivity {
                 activity.showError(exception);
             }
 
-            activity.setAbortButtonEnabled(false);
+            activity.setPauseButtonEnabled(false);
         }
 
         @Override
@@ -155,18 +175,6 @@ public class MainActivity extends ActionBarActivity {
                 cancel(true);
             }
             return null;
-        }
-    }
-
-    private class AbortButtonListener implements View.OnClickListener {
-        private MainActivity activity;
-
-        public AbortButtonListener(MainActivity activity) {
-            this.activity = activity;
-        }
-        @Override
-        public void onClick(View view) {
-            activity.abortUpload();
         }
     }
 
