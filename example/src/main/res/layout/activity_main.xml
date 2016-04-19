@@ -23,7 +23,9 @@
         android:layout_height="wrap_content"
         android:id="@+id/status"
         android:layout_below="@+id/button"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:autoLink="web"
+        android:gravity="center_horizontal" />
 
     <Button
         style="?android:attr/buttonStyleSmall"

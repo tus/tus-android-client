@@ -39,7 +39,7 @@ public class MainActivity extends ActionBarActivity {
         try {
             SharedPreferences pref = getSharedPreferences("tus", 0);
             client = new TusClient();
-            client.setUploadCreationURL(new URL("http://master.tus.io:8080/files/"));
+            client.setUploadCreationURL(new URL("http://master.tus.io/files/"));
             client.enableResuming(new TusPreferencesURLStore(pref));
         } catch(Exception e) {
             showError(e);
@@ -91,7 +91,7 @@ public class MainActivity extends ActionBarActivity {
         progressBar.setProgress(progress);
     }
 
-    private class UploadTask extends AsyncTask<Void, Long, Void> {
+    private class UploadTask extends AsyncTask<Void, Long, URL> {
         private MainActivity activity;
         private TusClient client;
         private TusUpload upload;
@@ -110,8 +110,8 @@ public class MainActivity extends ActionBarActivity {
         }
 
         @Override
-        protected void onPostExecute(Void result) {
-            activity.setStatus("Upload finished!");
+        protected void onPostExecute(URL uploadURL) {
+            activity.setStatus("Upload finished!\n" + uploadURL.toString());
             activity.setAbortButtonEnabled(false);
         }
 
@@ -133,7 +133,7 @@ public class MainActivity extends ActionBarActivity {
         }
 
         @Override
-        protected Void doInBackground(Void... params) {
+        protected URL doInBackground(Void... params) {
             try {
                 TusUploader uploader = client.resumeOrCreateUpload(upload);
                 long totalBytes = upload.getSize();
@@ -148,6 +148,7 @@ public class MainActivity extends ActionBarActivity {
                 }
 
                 uploader.finish();
+                return uploader.getUploadURL();
 
             } catch(Exception e) {
                 exception = e;
