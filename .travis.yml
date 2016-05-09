@@ -5,7 +5,7 @@ android:
         # SDK version
         - android-23
         # Build tools version
-        - build-tools-23.0.3
+        - build-tools-23.1.0
 script:
     - ./gradlew test
 deploy:
