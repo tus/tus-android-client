@@ -8,6 +8,10 @@ android:
         - tools
         # Build tools version
         - build-tools-23.0.3
+        # Android Support Library (appcompat)
+        - extra-android-support
+        # Android Support Repository
+        - extra-android-m2repository
 script:
     - ./gradlew test
 deploy:
