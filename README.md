@@ -84,7 +84,7 @@ The JARs can be downloaded manually from our [Bintray project](https://bintray.c
 **Gradle:**
 
 ```groovy
-compile 'io.tus.android.client:tus-android-client:0.1.3'
+compile 'io.tus.android.client:tus-android-client:0.1.4'
 ```
 
 **Maven:**
@@ -93,7 +93,7 @@ compile 'io.tus.android.client:tus-android-client:0.1.3'
 <dependency>
   <groupId>io.tus.android.client</groupId>
   <artifactId>tus-android-client</artifactId>
-  <version>0.1.3</version>
+  <version>0.1.4</version>
 </dependency>
 ```
 
