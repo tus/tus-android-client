@@ -48,7 +48,7 @@ task createPom {
             artifactId 'tus-android-client'
             name 'tus-android-client'
             version project.getProperties().get('pomVersion')
-            packaging 'pom'
+            packaging 'aar'
             description 'Android client for tus, the resumable file uploading protocol.'
             url 'http://tus.io'
 
