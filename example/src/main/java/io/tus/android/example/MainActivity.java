@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             SharedPreferences pref = getSharedPreferences("tus", 0);
             client = new TusClient();
-            client.setUploadCreationURL(new URL("http://master.tus.io/files/"));
+            client.setUploadCreationURL(new URL("https://master.tus.io/files/"));
             client.enableResuming(new TusPreferencesURLStore(pref));
         } catch(Exception e) {
             showError(e);
