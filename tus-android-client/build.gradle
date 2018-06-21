@@ -58,6 +58,14 @@ task createPom {
                 connection 'https://github.com/tus/tus-android-client'
                 developerConnection 'https://github.com/tus/tus-android-client'
             }
+            
+            developers {
+                developer {
+                    id 'acconut'
+                    name 'Marius Kleidl'
+                    email 'marius@transloadit.com'
+                }
+            }
 
             inceptionYear '2015'
             licenses {
