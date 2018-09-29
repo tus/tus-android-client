@@ -159,8 +159,8 @@ public class MainActivity extends AppCompatActivity {
                 long totalBytes = upload.getSize();
                 long uploadedBytes = uploader.getOffset();
 
-                // Upload file in 10KB chunks
-                uploader.setChunkSize(10 * 1024);
+                // Upload file in 1MiB chunks
+                uploader.setChunkSize(1024 * 1024);
 
                 while(!isCancelled() && uploader.uploadChunk() > 0) {
                     uploadedBytes = uploader.getOffset();
