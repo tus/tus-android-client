@@ -127,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
         protected void onPreExecute() {
             activity.setStatus("Upload selected...");
             activity.setPauseButtonEnabled(true);
+            activity.setUploadProgress(0);
         }
 
         @Override
