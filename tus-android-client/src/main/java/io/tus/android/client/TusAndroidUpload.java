@@ -1,7 +1,7 @@
 package io.tus.android.client;
 
-import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
@@ -16,8 +16,8 @@ import java.util.Map;
 import io.tus.java.client.TusUpload;
 
 public class TusAndroidUpload extends TusUpload {
-    public TusAndroidUpload(Uri uri, Activity activity) throws FileNotFoundException {
-        ContentResolver resolver = activity.getContentResolver();
+    public TusAndroidUpload(Uri uri, Context context) throws FileNotFoundException {
+        ContentResolver resolver = context.getContentResolver();
         Cursor cursor = resolver.query(uri, new String[]{OpenableColumns.SIZE, OpenableColumns.DISPLAY_NAME}, null, null, null);
         if(cursor == null) {
             throw new FileNotFoundException();
