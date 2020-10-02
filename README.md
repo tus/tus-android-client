@@ -22,7 +22,7 @@ TusClient client = new TusClient();
 
 // Configure tus HTTP endpoint. This URL will be used for creating new uploads
 // using the Creation extension
-client.setUploadCreationURL(new URL("http://master.tus.io/files"));
+client.setUploadCreationURL(new URL("http://tusd.tusdemo.net/files"));
 
 // Enable resumable uploads by storing the upload URL in the preferences
 // and preserve them after app restarts

@@ -19,7 +19,7 @@ public class TusPreferencesURLStoreTest {
         Activity activity = Robolectric.setupActivity(Activity.class);
         TusPreferencesURLStore store = new TusPreferencesURLStore(activity.getSharedPreferences("tus-test", 0));
         System.out.println("hello");
-        URL url = new URL("https://master.tus.io/files/hello");
+        URL url = new URL("https://tusd.tusdemo.net/files/hello");
         String fingerprint = "foo";
         store.set(fingerprint, url);
 
