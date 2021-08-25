@@ -5,14 +5,18 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.widget.ContentLoadingProgressBar;
+
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import com.google.android.material.button.MaterialButton;
 
 import java.net.URL;
 
@@ -27,10 +31,10 @@ public class MainActivity extends AppCompatActivity {
     private final int REQUEST_FILE_SELECT = 1;
     private TusClient client;
     private TextView status;
-    private Button pauseButton;
-    private Button resumeButton;
+    private MaterialButton pauseButton;
+    private MaterialButton resumeButton;
     private UploadTask uploadTask;
-    private ProgressBar progressBar;
+    private ContentLoadingProgressBar progressBar;
     private Uri fileUri;
 
     @Override
@@ -43,12 +47,12 @@ public class MainActivity extends AppCompatActivity {
             client = new TusClient();
             client.setUploadCreationURL(new URL("https://tusd.tusdemo.net/files/"));
             client.enableResuming(new TusPreferencesURLStore(pref));
-        } catch(Exception e) {
+        } catch (Exception e) {
             showError(e);
         }
 
         status = (TextView) findViewById(R.id.status);
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar = (ContentLoadingProgressBar) findViewById(R.id.progressBar);
 
         Button button = (Button) findViewById(R.id.button);
         button.setOnClickListener(new View.OnClickListener() {
@@ -62,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        pauseButton = (Button) findViewById(R.id.pause_button);
+        pauseButton = (MaterialButton) findViewById(R.id.pause_button);
         pauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -70,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        resumeButton = (Button) findViewById(R.id.resume_button);
+        resumeButton = (MaterialButton) findViewById(R.id.resume_button);
         resumeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -138,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onCancelled() {
-            if(exception != null) {
+            if (exception != null) {
                 activity.showError(exception);
             }
 
@@ -149,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
         protected void onProgressUpdate(Long... updates) {
             long uploadedBytes = updates[0];
             long totalBytes = updates[1];
-            activity.setStatus(String.format("Uploaded %d/%d.", uploadedBytes, totalBytes));
+            activity.setStatus("Uploaded " + (int) ((double) uploadedBytes / totalBytes * 100) + "% | " + String.format("%d/%d.", uploadedBytes, totalBytes));
             activity.setUploadProgress((int) ((double) uploadedBytes / totalBytes * 100));
         }
 
@@ -163,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
                 // Upload file in 1MiB chunks
                 uploader.setChunkSize(1024 * 1024);
 
-                while(!isCancelled() && uploader.uploadChunk() > 0) {
+                while (!isCancelled() && uploader.uploadChunk() > 0) {
                     uploadedBytes = uploader.getOffset();
                     publishProgress(uploadedBytes, totalBytes);
                 }
@@ -171,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
                 uploader.finish();
                 return uploader.getUploadURL();
 
-            } catch(Exception e) {
+            } catch (Exception e) {
                 exception = e;
                 cancel(true);
             }
@@ -189,34 +193,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(resultCode != RESULT_OK) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != RESULT_OK) {
             return;
         }
 
-        if(requestCode == REQUEST_FILE_SELECT) {
+        if (requestCode == REQUEST_FILE_SELECT) {
             Uri uri = data.getData();
             beginUpload(uri);
         }
