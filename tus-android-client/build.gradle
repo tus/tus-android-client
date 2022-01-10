@@ -1,5 +1,7 @@
-apply plugin: 'com.android.library'
-apply plugin: 'maven'
+plugins {
+    id("com.android.library")
+    id("signing")
+}
 
 android {
     compileSdkVersion 30
@@ -8,8 +10,6 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 30
-        versionCode 1
-        versionName "1.0"
     }
     buildTypes {
         release {
@@ -19,61 +19,93 @@ android {
     }
 }
 
+def config = new ConfigSlurper().parse(new File("${projectDir}/src/main/res/buildinfo.properties").toURI().toURL())
+description=config.descritpion
+version=config.version
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'io.tus.java.client:tus-java-client:0.4.3'
+    implementation 'io.tus.java.client:tus-java-client:0.4.5'
     testImplementation 'org.robolectric:robolectric:4.5.1'
     testImplementation 'junit:junit:4.13.2'
 }
 
 task sourcesJar(type: Jar) {
-    classifier = 'sources'
+    archiveClassifier.set('sources')
     from android.sourceSets.main.java.srcDirs
 }
 
 task javadoc(type: Javadoc) {
     source = android.sourceSets.main.java.srcDirs
-    classpath = configurations.compile
     classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    android.libraryVariants.all { variant ->
+        owner.classpath += variant.javaCompileProvider.get().classpath
+    }
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
+    archiveClassifier.set('javadoc')
     from javadoc.destinationDir
 }
 
-task createPom {
-    pom {
-        project {
-            groupId 'io.tus.android.client'
-            artifactId 'tus-android-client'
-            name 'tus-android-client'
-            version project.getProperties().get('pomVersion')
-            packaging 'aar'
-            description 'Android client for tus, the resumable file uploading protocol.'
-            url 'http://tus.io'
+def pomConfig = {
+    groupId 'io.tus.android.client'
+    artifactId 'tus-android-client'
+    name 'tus-android-client'
+    url 'http://tus.io'
+    version = project.getVersion()
+    packaging 'aar'
 
-            scm {
-                url 'https://github.com/tus/tus-android-client'
-                connection 'https://github.com/tus/tus-android-client'
-                developerConnection 'https://github.com/tus/tus-android-client'
-            }
-            
-            developers {
-                developer {
-                    id 'acconut'
-                    name 'Marius Kleidl'
-                    email 'marius@transloadit.com'
-                }
-            }
+    licenses {
+        license {
+            name 'The MIT License (MIT)'
+            url 'http://opensource.org/licenses/MIT'
+        }
+    }
+    developers {
+        developer {
+            id 'acconut'
+            name 'Marius Kleidl'
+            email 'marius@transloadit.com'
+        }
+    }
 
-            inceptionYear '2015'
-            licenses {
-                license {
-                    name 'The MIT License (MIT)'
-                    url 'http://opensource.org/licenses/MIT'
+    inceptionYear '2015'
+    licenses {
+        license {
+            name 'The MIT License (MIT)'
+            url 'http://opensource.org/licenses/MIT'
+        }
+    }
+
+    scm {
+        url 'https://github.com/tus/tus-android-client'
+        connection 'https://github.com/tus/tus-android-client'
+        developerConnection 'https://github.com/tus/tus-android-client'
+    }
+}
+
+publishing {
+    publications {
+        androidRelease(MavenPublication) {
+            afterEvaluate {
+                from components.release
+                artifact sourcesJar
+                artifact javadocJar
+                pom.withXml {
+                    def root = asNode()
+                    root.appendNode('description', project.getDescription())
+                    root.children().last() + pomConfig
                 }
             }
         }
-    }.writeTo("build/libs/pom.xml")
+    }
+}
+
+signing{
+    def signingKeyId = System.getenv("SIGNING_KEY_ID")
+    def signingPassword = System.getenv("SIGNING_KEY_PASSWORD")
+    def signingKey = System.getenv("SIGNING_KEY_AMORED")
+    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+    sign publishing.publications.androidRelease
 }
