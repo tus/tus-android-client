@@ -1,6 +1,6 @@
 plugins {
-    id("com.android.library")
-    id("signing")
+    id('com.android.library')
+    id('signing')
 }
 
 android {
@@ -49,19 +49,9 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 }
 
 def pomConfig = {
-    groupId 'io.tus.android.client'
-    artifactId 'tus-android-client'
     name 'tus-android-client'
     url 'http://tus.io'
-    version = project.getVersion()
-    packaging 'aar'
 
-    licenses {
-        license {
-            name 'The MIT License (MIT)'
-            url 'http://opensource.org/licenses/MIT'
-        }
-    }
     developers {
         developer {
             id 'acconut'
@@ -90,8 +80,14 @@ publishing {
         androidRelease(MavenPublication) {
             afterEvaluate {
                 from components.release
+                groupId 'io.tus.android.client'
+                artifactId 'tus-android-client'
+                description project.getDescription()
+                version project.getVersion()
+
                 artifact sourcesJar
                 artifact javadocJar
+
                 pom.withXml {
                     def root = asNode()
                     root.appendNode('description', project.getDescription())
@@ -103,9 +99,9 @@ publishing {
 }
 
 signing{
-    def signingKeyId = System.getenv("SIGNING_KEY_ID")
-    def signingPassword = System.getenv("SIGNING_KEY_PASSWORD")
-    def signingKey = System.getenv("SIGNING_KEY_AMORED")
+    def signingKeyId = System.getenv('SIGNING_KEY_ID')
+    def signingPassword = System.getenv('SIGNING_KEY_PASSWORD')
+    def signingKey = System.getenv('SIGNING_KEY_AMORED')
     useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
     sign publishing.publications.androidRelease
 }
