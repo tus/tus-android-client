@@ -30,7 +30,7 @@ nexusPublishing {
         sonatype {
             username = System.getenv('SONATYPE_USER')
             password = System.getenv('SONATYPE_KEY')
-            stagingProfileId='4c80f9a0e40f13'
+            stagingProfileId = System.getenv('SONATYPE_STAGING_PROFILE')
         }
     }
 }
