@@ -84,7 +84,7 @@ The JARs can be downloaded manually from our [Maven Central](https://search.mave
 **Gradle:**
 
 ```groovy
-compile 'io.tus.android.client:tus-android-client:0.1.9'
+compile 'io.tus.android.client:tus-android-client:0.1.10'
 ```
 
 **Maven:**
@@ -93,7 +93,7 @@ compile 'io.tus.android.client:tus-android-client:0.1.9'
 <dependency>
   <groupId>io.tus.android.client</groupId>
   <artifactId>tus-android-client</artifactId>
-  <version>0.1.9</version>
+  <version>0.1.10</version>
 </dependency>
 ```
 

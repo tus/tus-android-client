@@ -13,6 +13,6 @@ Please place your question here.
 **Setup details**
 Please provide following details, if applicable to your situation:
 - Runtime environment: [e.g. Android version, etc.]
-- Used tus-android-client version: [e.g. v0.1.9]
+- Used tus-android-client version: [e.g. v0.1.10]
 - Used tus-java-client version: [e.g. v0.4.2]
 - Used tus server software: [e.g. tusd, tus-node-server etc.]
