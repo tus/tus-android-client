@@ -79,7 +79,7 @@ The [example application](/example/src/main/java/io/tus/android/example/MainActi
 
 ## Installation
 
-The JARs can be downloaded manually from our [Bintray project](https://bintray.com/tus/maven/tus-android-client/view#files). tus-java-client is also available in JCenter (Maven Central is coming soon).
+The JARs can be downloaded manually from our [Maven Central](https://search.maven.org/artifact/io.tus.android.client/tus-android-client).
 
 **Gradle:**
 
@@ -99,7 +99,7 @@ compile 'io.tus.android.client:tus-android-client:0.1.9'
 
 ## Documentation
 
-The documentation of the latest version (master branch of git repository) can be found online at [tus.github.io/tus-android-client/javadoc/](https://tus.github.io/tus-android-client/javadoc/).
+The documentation of the latest version (master branch of git repository) can be found online at [javadoc.io](https://javadoc.io/doc/io.tus.android.client/tus-android-client).
 
 ## FAQ
 

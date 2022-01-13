@@ -25,26 +25,3 @@ jobs:
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
           SIGNING_KEY_AMORED: ${{ secrets.SIGNING_KEY_AMORED }}
           # run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository
-
-  deploy_gh_pages:
-    needs: [publish_to_maven]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-
-      - name: Build Javadoc
-        run: ./gradlew javadoc
-
-      - name: Copy Javadoc in new folder
-        run: cp -r ./tus-android-client/build/docs/javadoc ../github-pages/javadoc
-
-      - name: Commit changes
-        uses: EndBug/add-and-commit@v7
-        with:
-          author_name: release script
-          message: 'Update GH-Pages'
-          add: "*"
-          cwd: './github-pages/javadoc'
-          branch: gh-pages
-          push: true
