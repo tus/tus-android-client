@@ -19,7 +19,7 @@ android {
     }
 }
 
-def config = new ConfigSlurper().parse(new File("${projectDir}/src/main/res/buildinfo.properties").toURI().toURL())
+def config = new ConfigSlurper().parse(new File("${projectDir}/src/main/res/tus-android-client-version/version.properties").toURI().toURL())
 description=config.descritpion
 version=config.version
 
