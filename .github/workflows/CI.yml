@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     types:
       - opened
@@ -33,7 +33,7 @@ jobs:
 
   slack-on-failure:
     needs: [ android ]
-    if: failure() && github.ref == 'refs/heads/master'
+    if: failure() && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     steps:
