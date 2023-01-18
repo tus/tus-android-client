@@ -99,13 +99,13 @@ compile 'io.tus.android.client:tus-android-client:0.1.10'
 
 ## Documentation
 
-The documentation of the latest version (master branch of git repository) can be found online at [javadoc.io](https://javadoc.io/doc/io.tus.android.client/tus-android-client).
+The documentation of the latest version (main branch of git repository) can be found online at [javadoc.io](https://javadoc.io/doc/io.tus.android.client/tus-android-client).
 
 ## FAQ
 
 ### I get TLS/SSL errors on older Android versions!
 
-On devices running Android 4.4 earlier, errors can appear during the SSL handshake. This is caused by wrong behavior inside the platform and can be fixed by providing a custom `SSLSocketFactory` as described in https://stackoverflow.com/a/30302235 and https://github.com/tus/tus-java-client/blob/master/README.md#can-i-use-my-own-custom-sslsocketfactory. More details are also available at https://github.com/tus/tus-java-client/issues/14#issuecomment-402786097.
+On devices running Android 4.4 earlier, errors can appear during the SSL handshake. This is caused by wrong behavior inside the platform and can be fixed by providing a custom `SSLSocketFactory` as described in https://stackoverflow.com/a/30302235 and https://github.com/tus/tus-java-client/blob/main/README.md#can-i-use-my-own-custom-sslsocketfactory. More details are also available at https://github.com/tus/tus-java-client/issues/14#issuecomment-402786097.
 
 ## License
 
