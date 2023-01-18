@@ -3,13 +3,13 @@ plugins {
 }
 
 android {
-    compileSdkVersion 32
+    compileSdkVersion 33
     buildToolsVersion '30.0.3'
 
     defaultConfig {
         applicationId 'io.tus.android.example'
         minSdkVersion 18
-        targetSdkVersion 32
+        targetSdkVersion 33
         versionCode 1
         versionName '1.0'
     }
