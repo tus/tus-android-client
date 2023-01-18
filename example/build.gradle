@@ -3,13 +3,13 @@ plugins {
 }
 
 android {
-    compileSdkVersion 32
+    compileSdkVersion 33
     buildToolsVersion '30.0.3'
 
     defaultConfig {
         applicationId 'io.tus.android.example'
         minSdkVersion 18
-        targetSdkVersion 32
+        targetSdkVersion 33
         versionCode 1
         versionName '1.0'
     }
@@ -27,7 +27,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'androidx.appcompat:appcompat:1.6.0'
     implementation 'com.google.android.material:material:1.7.0'
     implementation 'io.tus.java.client:tus-java-client:0.4.5'
     implementation project(':tus-android-client')
