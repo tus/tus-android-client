@@ -10,17 +10,21 @@ on:
       - synchronize
       - unlabeled
 
+    runs-on: ubuntu-latest
 jobs:
   android:
+    strategy:
+      matrix:
+        java: [ '11','19' ]
 
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
-      - name: set up JDK 11
+      - name: set up JDK ${{ matrix.java }}
         uses: actions/setup-java@v3
         with:
-          java-version: '11'
+          java-version: ${{ matrix.java }}
           distribution: 'adopt'
           cache: gradle
 
