@@ -79,7 +79,7 @@ The [example application](/example/src/main/java/io/tus/android/example/MainActi
 
 ## Installation
 
-The JARs can be downloaded manually from our [Maven Central](https://search.maven.org/artifact/io.tus.android.client/tus-android-client).
+The JARs can be downloaded manually from our [Maven Central Repo](https://central.sonatype.com/namespace/io.tus.android.client).
 
 **Gradle:**
 
@@ -99,7 +99,7 @@ compile 'io.tus.android.client:tus-android-client:0.1.10'
 
 ## Documentation
 
-The documentation of the latest version (main branch of git repository) can be found online at [javadoc.io](https://javadoc.io/doc/io.tus.android.client/tus-android-client).
+The documentation of the latest versions can be found online at [javadoc.io](https://javadoc.io/doc/io.tus.android.client/tus-android-client).
 
 ## FAQ
 
