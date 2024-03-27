@@ -4,12 +4,12 @@ plugins {
 }
 
 android {
-    compileSdkVersion 33
-    buildToolsVersion '30.0.3'
+    compileSdk 33
+    setBuildToolsVersion("30.0.3")
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 33
+        targetSdk 33
     }
     buildTypes {
         release {
@@ -21,6 +21,7 @@ android {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
+    namespace 'io.tus.android.client'
 }
 
 def config = new ConfigSlurper().parse(new File("${projectDir}/src/main/res/tus-android-client-version/version.properties").toURI().toURL())
@@ -34,12 +35,12 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
 }
 
-task sourcesJar(type: Jar) {
+tasks.register('sourcesJar', Jar) {
     archiveClassifier.set('sources')
     from android.sourceSets.main.java.srcDirs
 }
 
-task javadoc(type: Javadoc) {
+tasks.register('javadoc', Javadoc) {
     source = android.sourceSets.main.java.srcDirs
     classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
     android.libraryVariants.all { variant ->
@@ -47,7 +48,8 @@ task javadoc(type: Javadoc) {
     }
 }
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
+tasks.register('javadocJar', Jar) {
+    dependsOn javadoc
     archiveClassifier.set('javadoc')
     from javadoc.destinationDir
 }
@@ -83,7 +85,7 @@ publishing {
     publications {
         androidRelease(MavenPublication) {
             afterEvaluate {
-                from components.release
+                from components.findByName('release')
                 groupId 'io.tus.android.client'
                 artifactId 'tus-android-client'
                 description project.getDescription()
