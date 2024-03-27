@@ -35,23 +35,29 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
 }
 
-tasks.register('sourcesJar', Jar) {
-    archiveClassifier.set('sources')
-    from android.sourceSets.main.java.srcDirs
-}
-
-tasks.register('javadoc', Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-    android.libraryVariants.all { variant ->
-        owner.classpath += variant.javaCompileProvider.get().classpath
+afterEvaluate {
+    tasks.register('sourcesJar', Jar) {
+        archiveClassifier.set('sources')
+        from android.sourceSets.main.java.srcDirs
     }
-}
 
-tasks.register('javadocJar', Jar) {
-    dependsOn javadoc
-    archiveClassifier.set('javadoc')
-    from javadoc.destinationDir
+    tasks.register('javadoc', Javadoc) {
+        source = android.sourceSets.main.java.srcDirs
+        classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+        android.libraryVariants.all { variant ->
+            owner.classpath += variant.javaCompileProvider.get().classpath
+        }
+    }
+
+    tasks.register('javadocJar', Jar) {
+        dependsOn javadoc
+        archiveClassifier.set('javadoc')
+        from javadoc.destinationDir
+    }
+
+    artifacts {
+        archives sourcesJar, javadocJar
+    }
 }
 
 def pomConfig = {
@@ -93,6 +99,9 @@ publishing {
 
                 artifact sourcesJar
                 artifact javadocJar
+                artifact (project.layout.buildDirectory.dir('outputs/aar/tus-android-client-release.aar')) {
+                    builtBy assemble
+                }
 
                 pom.withXml {
                     def root = asNode()
