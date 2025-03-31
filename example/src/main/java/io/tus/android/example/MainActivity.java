@@ -1,186 +1,137 @@
 package io.tus.android.example;
 
 import android.app.AlertDialog;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.widget.ContentLoadingProgressBar;
-
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
+import android.util.Log;
+import android.util.Pair;
 
-import com.google.android.material.button.MaterialButton;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
-import java.net.URL;
+import java.io.File;
+import java.util.Collection;
+import java.util.Map;
 
-import io.tus.android.client.TusAndroidUpload;
-import io.tus.android.client.TusPreferencesURLStore;
-import io.tus.java.client.TusClient;
-import io.tus.java.client.TusUpload;
-import io.tus.java.client.TusUploader;
+import io.tus.android.client.TusAndroidClient;
+import io.tus.android.example.databinding.ActivityMainBinding;
 
 
 public class MainActivity extends AppCompatActivity {
-    private final int REQUEST_FILE_SELECT = 1;
-    private TusClient client;
-    private TextView status;
-    private MaterialButton pauseButton;
-    private MaterialButton resumeButton;
-    private UploadTask uploadTask;
-    private ContentLoadingProgressBar progressBar;
-    private Uri fileUri;
+
+    private static final String LOG_TAG = MainActivity.class.toString();
+    private ActivityMainBinding binding;
+    private TusAndroidClient tusAndroidClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        try {
-            SharedPreferences pref = getSharedPreferences("tus", 0);
-            client = new TusClient();
-            client.setUploadCreationURL(new URL("https://tusd.tusdemo.net/files/"));
-            client.enableResuming(new TusPreferencesURLStore(pref));
-        } catch (Exception e) {
-            showError(e);
-        }
+        // create the upload client - this allows us to submit new uploads and get updates on the status of previously submitted uploads
+        // uploads we submitted previously will continue in the background, regardless of whether we initialise the TusAndroidClient next time
+        tusAndroidClient = new TusAndroidClient(getApplicationContext(), Uri.parse("https://tusd.tusdemo.net/files/"), new File(getFilesDir().getPath() + "/internal-tus-files-folder/"));
+        // get the latest info we have on the status of our uploads. This info may not be available immediately, so pass a callback - this will only be called once
+        tusAndroidClient.getPendingUploadInfo(this::updateStatsDisplay);
+        // register to receive ongoing updates as the upload status changes
+        tusAndroidClient.addPendingUploadChangeListener(this::updateStatsDisplay);
+        // register to be notified when individual uploads succeed:
+        tusAndroidClient.addUploadSuccessListener(succeededUploadInfo -> Log.e(LOG_TAG, "upload " + succeededUploadInfo.id + " succeeded!"));
 
-        status = (TextView) findViewById(R.id.status);
-        progressBar = (ContentLoadingProgressBar) findViewById(R.id.progressBar);
-
-        Button button = (Button) findViewById(R.id.button);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.setType("*/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Select file to upload"), REQUEST_FILE_SELECT);
-
+        ActivityResultLauncher<PickVisualMediaRequest> pickMultipleMedia = registerForActivityResult(new ActivityResultContracts.PickMultipleVisualMedia(10), uris -> {
+            if (!uris.isEmpty()) {
+                beginUpload(uris);
             }
         });
 
-        pauseButton = (MaterialButton) findViewById(R.id.pause_button);
-        pauseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                pauseUpload();
-            }
-        });
-
-        resumeButton = (MaterialButton) findViewById(R.id.resume_button);
-        resumeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                resumeUpload();
-            }
+        binding.uploadButton.setOnClickListener(v -> {
+            pickMultipleMedia.launch(new PickVisualMediaRequest.Builder()
+                    .setMediaType(ActivityResultContracts.PickVisualMedia.ImageAndVideo.INSTANCE)
+                    .build());
         });
     }
 
-    private void beginUpload(Uri uri) {
-        fileUri = uri;
-        resumeUpload();
-    }
+    private void updateStatsDisplay(@NonNull TusAndroidClient.UploadStateInfo uploadStateInfo) {
+        // UploadStateInfo contains...
+        // 1) uploadsSucceeded: all the uploads that have succeeded in the background after the app was last running, plus any uploads that have succeeded this time
+        binding.buttonStatsNumSucceeded.setText(getString(R.string.num_succeeded, uploadStateInfo.uploadsSucceeded.size()));
+        // 2) uploadsPending: all the uploads (submitted now or in previous times using the app) which have not yet succeeded of permanently failed
+        // they may be running, or schedule to run in future
+        Pair<Integer, Integer> scheduleAndRunningCount = countScheduledAndRunning(uploadStateInfo.uploadsPending);
+        binding.buttonStatsNumScheduled.setText(getString(R.string.num_scheduled, scheduleAndRunningCount.first));
+        binding.buttonStatsNumRunning.setText(getString(R.string.num_running, scheduleAndRunningCount.second));
+        // 3) uploadsFailed: uploads that have failed permanently in the background after the app was last running, plus any uploads that have permanently failed this time
+        // to permanently fail, we either received an unrecoverable error from TUS backend, or exceeded a time or retry limit
+        binding.buttonStatsNumPermanentlyFailed.setText(getString(R.string.num_failed, uploadStateInfo.uploadsFailed.size()));
 
-    public void setPauseButtonEnabled(boolean enabled) {
-        pauseButton.setEnabled(enabled);
-        resumeButton.setEnabled(!enabled);
-    }
-
-    public void pauseUpload() {
-        uploadTask.cancel(false);
-    }
-
-    public void resumeUpload() {
-        try {
-            TusUpload upload = new TusAndroidUpload(fileUri, this);
-            uploadTask = new UploadTask(this, client, upload);
-            uploadTask.execute(new Void[0]);
-        } catch (Exception e) {
-            showError(e);
-        }
-    }
-
-    private void setStatus(String text) {
-        status.setText(text);
-    }
-
-    private void setUploadProgress(int progress) {
-        progressBar.setProgress(progress);
-    }
-
-    private class UploadTask extends AsyncTask<Void, Long, URL> {
-        private MainActivity activity;
-        private TusClient client;
-        private TusUpload upload;
-        private Exception exception;
-
-        public UploadTask(MainActivity activity, TusClient client, TusUpload upload) {
-            this.activity = activity;
-            this.client = client;
-            this.upload = upload;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            activity.setStatus("Upload selected...");
-            activity.setPauseButtonEnabled(true);
-            activity.setUploadProgress(0);
-        }
-
-        @Override
-        protected void onPostExecute(URL uploadURL) {
-            activity.setStatus("Upload finished!\n" + uploadURL.toString());
-            activity.setPauseButtonEnabled(false);
-        }
-
-        @Override
-        protected void onCancelled() {
-            if (exception != null) {
-                activity.showError(exception);
+        // For each upload we have some information, including a unique generated id, and the upload metadata
+        // In-progress uploads contain their state (SCHEDULED or RUNNING) and progress
+        StringBuilder infoDisplay = new StringBuilder();
+        for (TusAndroidClient.PendingUploadInfo info : uploadStateInfo.uploadsPending.values()) {
+            infoDisplay.append("id: ").append(info.id).append("\n")
+                    .append("     state: ").append(info.state).append("\n")
+                    .append("     progress: ").append((int) info.progress).append("%\n");
+            if (info.mostRecentFailureReasonIfAny != null) {
+                infoDisplay.append("     previously failed because: ").append(info.mostRecentFailureDetailsIfAny);
             }
-
-            activity.setPauseButtonEnabled(false);
+            infoDisplay.append("\n\n");
         }
+        binding.buttonStatsAllInfo.setText(uploadStateInfo.uploadsPending.isEmpty() ? getString(R.string.stats_description) : infoDisplay.toString());
+        updateProgressBar(uploadStateInfo.uploadsPending);
+    }
 
-        @Override
-        protected void onProgressUpdate(Long... updates) {
-            long uploadedBytes = updates[0];
-            long totalBytes = updates[1];
-            activity.setStatus("Uploaded " + (int) ((double) uploadedBytes / totalBytes * 100) + "% | " + String.format("%d/%d.", uploadedBytes, totalBytes));
-            activity.setUploadProgress((int) ((double) uploadedBytes / totalBytes * 100));
+    private Pair<Integer, Integer> countScheduledAndRunning(Map<String, TusAndroidClient.PendingUploadInfo> pendingUploadsInfo) {
+        int scheduledCount = 0;
+        int runningCount = 0;
+
+        for (TusAndroidClient.PendingUploadInfo info : pendingUploadsInfo.values()) {
+            switch (info.state) {
+                case SCHEDULED:
+                    ++scheduledCount;
+                    break;
+                case RUNNING:
+                    ++runningCount;
+                    break;
+            }
         }
+        return Pair.create(scheduledCount, runningCount);
+    }
 
-        @Override
-        protected URL doInBackground(Void... params) {
-            try {
-                TusUploader uploader = client.resumeOrCreateUpload(upload);
-                long totalBytes = upload.getSize();
-                long uploadedBytes = uploader.getOffset();
+    private void updateProgressBar(Map<String, TusAndroidClient.PendingUploadInfo> pendingUploadsInfo) {
+        // set the progress bar to represent all the pending uploads
+        // e.g if there are 3 uploads pending, 2 are 90% done and one is 20% done
+        // the progress bar will show overall we are 66% done
+        double progress = 0;
+        for (TusAndroidClient.PendingUploadInfo info : pendingUploadsInfo.values()) {
+            progress += info.progress;
+        }
+        if (!pendingUploadsInfo.isEmpty()) {
+            progress /= pendingUploadsInfo.size();
+        }
+        binding.progressBar.setProgress((int) progress);
+    }
 
-                // Upload file in 1MiB chunks
-                uploader.setChunkSize(1024 * 1024);
-
-                while (!isCancelled() && uploader.uploadChunk() > 0) {
-                    uploadedBytes = uploader.getOffset();
-                    publishProgress(uploadedBytes, totalBytes);
+    private void beginUpload(Collection<Uri> uris) {
+        AsyncTask.execute(() -> {
+            for (Uri uri : uris) {
+                try {
+                    // when data is submitted for upload, it is copied into the storage directory specified when you created the TusAndroidClient
+                    // it stays there until the upload either succeeds, or fails permanently
+                    // we use Android's WorkManager to ensure the upload happens in the background when appropriate conditions (like being connected to the internet) are met
+                    String id = tusAndroidClient.submitFileForUpload(uri);
+                    Log.d(LOG_TAG, "file submitted, id: " + id);
+                } catch (TusAndroidClient.FileSubmissionException e) {
+                    // this error could occur if we're unable to copy the file locally
+                    showError(e);
                 }
-
-                uploader.finish();
-                return uploader.getUploadURL();
-
-            } catch (Exception e) {
-                exception = e;
-                cancel(true);
             }
-            return null;
-        }
+        });
+
     }
 
     private void showError(Exception e) {
@@ -189,19 +140,6 @@ public class MainActivity extends AppCompatActivity {
         builder.setMessage(e.getMessage());
         AlertDialog dialog = builder.create();
         dialog.show();
-        e.printStackTrace();
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode != RESULT_OK) {
-            return;
-        }
-
-        if (requestCode == REQUEST_FILE_SELECT) {
-            Uri uri = data.getData();
-            beginUpload(uri);
-        }
+        Log.e(LOG_TAG, "an error occurred", e);
     }
 }

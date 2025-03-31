@@ -1,5 +1,7 @@
 package io.tus.android.client;
 
+import static org.junit.Assert.assertEquals;
+
 import android.app.Activity;
 
 import org.junit.Test;
@@ -9,10 +11,13 @@ import org.robolectric.RobolectricTestRunner;
 
 import java.net.URL;
 
-import static org.junit.Assert.assertEquals;
-
 @RunWith(RobolectricTestRunner.class)
 public class TusPreferencesURLStoreTest {
+
+    @Test(expected = NullPointerException.class)
+    public void requiresSharedPreferences() {
+        new TusPreferencesURLStore(null);
+    }
 
     @Test
     public void shouldSetGetAndDeleteURLs() throws Exception {

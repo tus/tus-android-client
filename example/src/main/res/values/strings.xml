@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">AndroidExample</string>
-    <string name="action_settings">Settings</string>
+    <string name="app_name">TUS Android Client Example</string>
+    <string name="intro_text">File uploading test for tus.io. \n\nFile uploads will continue in the background and you can see their status when you reopen the app.\n\nTry turning off internet to cause upload delay.</string>
+    <string name="stats_description">Any uploads in progress or awaiting retry will be listed here</string>
+
+    <string name="num_scheduled">Num Scheduled: %d</string>
+    <string name="num_running">Num Running: %d</string>
+    <string name="num_succeeded">Num Succeeded: %d</string>
+    <string name="num_failed">Num Failed: %d</string>
+    <string name="metered_only">Metered Only</string>
+    <string name="upload">Upload</string>
 
 </resources>

@@ -3,68 +3,57 @@ package io.tus.android.client;
 import android.content.SharedPreferences;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
+
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Objects;
 
 import io.tus.java.client.TusURLStore;
 
 public class TusPreferencesURLStore implements TusURLStore {
-    private SharedPreferences preferences;
+    private final SharedPreferences preferences;
 
-    public TusPreferencesURLStore(SharedPreferences preferences) {
+    public TusPreferencesURLStore(@NonNull SharedPreferences preferences) {
+        Objects.requireNonNull(preferences, "must specify SharedPreferences");
         this.preferences = preferences;
     }
 
     public URL get(String fingerprint) {
         // Ignore empty fingerprints
-        if(fingerprint.length() == 0) {
+        if(fingerprint == null || fingerprint.isEmpty()) {
             return null;
         }
 
         String urlStr = preferences.getString(fingerprint, "");
 
         // No entry was found
-        if(urlStr.length() == 0) {
+        if (urlStr.isEmpty()) {
             return null;
         }
 
         // Ignore invalid URLs
         try {
             return new URL(urlStr);
-        } catch(MalformedURLException e) {
+        } catch (MalformedURLException e) {
             remove(fingerprint);
             return null;
         }
     }
 
     public void set(String fingerprint, URL url) {
-        String urlStr = url.toString();
-
         // Ignore empty fingerprints
-        if(fingerprint.length() == 0) {
+        if (url == null || fingerprint == null || fingerprint.isEmpty()) {
             return;
         }
-
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(fingerprint, urlStr);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-            editor.apply();
-        } else {
-            editor.commit();
-        }
+        preferences.edit().putString(fingerprint, url.toString()).apply();
     }
 
     public void remove(String fingerprint) {
         // Ignore empty fingerprints
-        if(fingerprint.length() == 0) {
+        if (fingerprint == null || fingerprint.isEmpty()) {
             return;
         }
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.remove(fingerprint);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-            editor.apply();
-        } else {
-            editor.commit();
-        }
+        preferences.edit().remove(fingerprint).apply();
     }
 }

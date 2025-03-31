@@ -4,12 +4,12 @@ plugins {
 }
 
 android {
-    compileSdk 33
-    setBuildToolsVersion("30.0.3")
+    compileSdk 35
+    setBuildToolsVersion("35.0.0")
 
     defaultConfig {
         minSdkVersion 14
-        targetSdk 33
+        targetSdk 35
     }
     buildTypes {
         release {
@@ -31,8 +31,14 @@ version=config.version
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'io.tus.java.client:tus-java-client:0.5.0'
+    implementation 'androidx.annotation:annotation-jvm:1.9.1'
+    implementation 'androidx.work:work-runtime:2.10.0'
+    implementation 'joda-time:joda-time:2.9.1'
+    implementation 'com.google.code.gson:gson:2.10.1'
+
     testImplementation 'org.robolectric:robolectric:4.14.1'
     testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.hamcrest:hamcrest:3.0'
 }
 
 afterEvaluate {
