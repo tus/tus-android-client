@@ -48,22 +48,23 @@ afterEvaluate {
             def localPropsFile = rootProject.file('local.properties')
             if (localPropsFile.exists()) {
                 def localProps = new Properties()
-                localProps.load(localPropsFile.newInputStream())
+                localPropsFile.withInputStream { stream -> localProps.load(stream) }
                 sdkDir = localProps.getProperty('sdk.dir')
             }
         }
-        if (sdkDir) {
+        if (sdkDir && android.compileSdk) {
             def androidJar = project.file("${sdkDir}/platforms/android-${android.compileSdk}/android.jar")
             if (androidJar.exists()) {
                 classpath += project.files(androidJar)
             } else {
                 logger.warn("android.jar not found at ${androidJar.absolutePath}; Javadoc classpath may be incomplete")
             }
-        } else {
+        } else if (!sdkDir) {
             logger.warn("Android SDK directory not found; Javadoc classpath may be incomplete")
         }
-        android.libraryVariants.all { variant ->
-            owner.classpath += variant.javaCompileProvider.get().classpath
+        def releaseCompileClasspath = configurations.findByName('releaseCompileClasspath')
+        if (releaseCompileClasspath) {
+            classpath += releaseCompileClasspath
         }
     }
 
