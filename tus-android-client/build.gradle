@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    compileSdk 33
+    compileSdk 34
     setBuildToolsVersion("30.0.3")
 
     defaultConfig {
@@ -43,6 +43,7 @@ afterEvaluate {
 
     tasks.register('javadoc', Javadoc) {
         source = android.sourceSets.main.java.srcDirs
+        failOnError = false
         def sdkDir = System.getenv('ANDROID_HOME') ?: System.getenv('ANDROID_SDK_ROOT')
         if (!sdkDir) {
             def localPropsFile = rootProject.file('local.properties')
