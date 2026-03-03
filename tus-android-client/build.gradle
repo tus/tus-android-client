@@ -43,7 +43,25 @@ afterEvaluate {
 
     tasks.register('javadoc', Javadoc) {
         source = android.sourceSets.main.java.srcDirs
-        classpath += project.files("${android.sdkDirectory}/platforms/android-${android.compileSdk}/android.jar")
+        def sdkDir = System.getenv('ANDROID_HOME') ?: System.getenv('ANDROID_SDK_ROOT')
+        if (!sdkDir) {
+            def localPropsFile = rootProject.file('local.properties')
+            if (localPropsFile.exists()) {
+                def localProps = new Properties()
+                localProps.load(localPropsFile.newInputStream())
+                sdkDir = localProps.getProperty('sdk.dir')
+            }
+        }
+        if (sdkDir) {
+            def androidJar = project.file("${sdkDir}/platforms/android-${android.compileSdk}/android.jar")
+            if (androidJar.exists()) {
+                classpath += project.files(androidJar)
+            } else {
+                logger.warn("android.jar not found at ${androidJar.absolutePath}; Javadoc classpath may be incomplete")
+            }
+        } else {
+            logger.warn("Android SDK directory not found; Javadoc classpath may be incomplete")
+        }
         android.libraryVariants.all { variant ->
             owner.classpath += variant.javaCompileProvider.get().classpath
         }
