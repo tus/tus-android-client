@@ -22,6 +22,12 @@ android {
         targetCompatibility JavaVersion.VERSION_11
     }
     namespace 'io.tus.android.client'
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
 }
 
 def config = new ConfigSlurper().parse(new File("${projectDir}/src/main/res/tus-android-client-version/version.properties").toURI().toURL())
@@ -33,51 +39,6 @@ dependencies {
     implementation 'io.tus.java.client:tus-java-client:0.5.1'
     testImplementation 'org.robolectric:robolectric:4.16.1'
     testImplementation 'junit:junit:4.13.2'
-}
-
-afterEvaluate {
-    tasks.register('sourcesJar', Jar) {
-        archiveClassifier.set('sources')
-        from android.sourceSets.main.java.srcDirs
-    }
-
-    tasks.register('javadoc', Javadoc) {
-        source = android.sourceSets.main.java.srcDirs
-        failOnError = false
-        def sdkDir = System.getenv('ANDROID_HOME') ?: System.getenv('ANDROID_SDK_ROOT')
-        if (!sdkDir) {
-            def localPropsFile = rootProject.file('local.properties')
-            if (localPropsFile.exists()) {
-                def localProps = new Properties()
-                localPropsFile.withInputStream { stream -> localProps.load(stream) }
-                sdkDir = localProps.getProperty('sdk.dir')
-            }
-        }
-        if (sdkDir && android.compileSdk) {
-            def androidJar = project.file("${sdkDir}/platforms/android-${android.compileSdk}/android.jar")
-            if (androidJar.exists()) {
-                classpath += project.files(androidJar)
-            } else {
-                logger.warn("android.jar not found at ${androidJar.absolutePath}; Javadoc classpath may be incomplete")
-            }
-        } else if (!sdkDir) {
-            logger.warn("Android SDK directory not found; Javadoc classpath may be incomplete")
-        }
-        def releaseCompileClasspath = configurations.findByName('releaseCompileClasspath')
-        if (releaseCompileClasspath) {
-            classpath += releaseCompileClasspath
-        }
-    }
-
-    tasks.register('javadocJar', Jar) {
-        dependsOn javadoc
-        archiveClassifier.set('javadoc')
-        from javadoc.destinationDir
-    }
-
-    artifacts {
-        archives sourcesJar, javadocJar
-    }
 }
 
 def pomConfig = {
@@ -116,14 +77,12 @@ publishing {
     publications {
         androidRelease(MavenPublication) {
             afterEvaluate {
-                from components.findByName('release')
+                from components.release
                 groupId 'io.tus.android.client'
                 artifactId 'tus-android-client'
                 description project.getDescription()
                 version project.getVersion()
 
-                artifact sourcesJar
-                artifact javadocJar
                 artifact (project.layout.buildDirectory.dir('outputs/aar/tus-android-client-release.aar')) {
                     builtBy assemble
                 }
