@@ -43,7 +43,7 @@ afterEvaluate {
 
     tasks.register('javadoc', Javadoc) {
         source = android.sourceSets.main.java.srcDirs
-        classpath += project.files(android.sdkComponents.bootClasspath.get()*.asFile)
+        classpath += project.files("${android.sdkDirectory}/platforms/android-${android.compileSdk}/android.jar")
         android.libraryVariants.all { variant ->
             owner.classpath += variant.javaCompileProvider.get().classpath
         }
