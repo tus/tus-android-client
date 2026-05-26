@@ -1,16 +1,17 @@
 name: CI
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
   pull_request:
     types:
       - opened
+      - ready_for_review
       - synchronize
       - unlabeled
 
-    runs-on: ubuntu-latest
 jobs:
   android:
     strategy:
