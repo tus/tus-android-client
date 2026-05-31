@@ -488,6 +488,7 @@ final class GeneratedTusProtocolContract {
                 new GeneratedTusClientFeatureConformance(
                         new String[] {
                         "creationWithUpload",
+                        "creationWithUploadPartialChunk",
                     },
                         "covered-by-generated-scenario"
                 ),
@@ -511,6 +512,7 @@ final class GeneratedTusProtocolContract {
             },
                 new String[] {
                 "createTusUpload",
+                "patchTusUpload",
             },
                 new String[] {
                 "upload-during-creation",
@@ -548,6 +550,46 @@ final class GeneratedTusProtocolContract {
             },
                 new String[] {
                 "send-upload-body-headers",
+            }
+        ),
+        new GeneratedTusClientFeature(
+                new GeneratedTusClientFeatureConformance(
+                        new String[] {
+                        "customRequestHeaders",
+                    },
+                        "covered-by-generated-scenario"
+                ),
+                "Apply user-provided request headers to every upload request.",
+                "customRequestHeaders",
+                new GeneratedTusClientFeatureFlowStep[] {
+                new GeneratedTusClientFeatureFlowStep(
+                        "primitive",
+                        "",
+                        "apply-custom-request-headers",
+                        "",
+                        "Merge user-provided headers after protocol headers are prepared."
+                ),
+                new GeneratedTusClientFeatureFlowStep(
+                        "operation",
+                        "createTusUpload",
+                        "",
+                        "",
+                        "Create uploads with the configured custom headers."
+                ),
+                new GeneratedTusClientFeatureFlowStep(
+                        "operation",
+                        "patchTusUpload",
+                        "",
+                        "",
+                        "Upload bytes with the configured custom headers."
+                ),
+            },
+                new String[] {
+                "createTusUpload",
+                "patchTusUpload",
+            },
+                new String[] {
+                "apply-custom-request-headers",
             }
         ),
         new GeneratedTusClientFeature(
@@ -594,10 +636,11 @@ final class GeneratedTusProtocolContract {
                 new GeneratedTusClientFeatureConformance(
                         new String[] {
                         "parallelUploadConcat",
+                        "parallelUploadAbortCleanup",
                     },
                         "covered-by-generated-scenario"
                 ),
-                "Split one input into partial uploads and concatenate their upload URLs.",
+                "Split one input into partial uploads, run the parts concurrently, clean up aborted parts, and concatenate their upload URLs.",
                 "parallelUploadConcat",
                 new GeneratedTusClientFeatureFlowStep[] {
                 new GeneratedTusClientFeatureFlowStep(
@@ -627,9 +670,11 @@ final class GeneratedTusProtocolContract {
                 "patchTusUpload",
             },
                 new String[] {
+                "abort-current-request",
                 "concatenate-partial-uploads",
                 "emit-progress",
                 "split-parallel-upload-boundaries",
+                "terminate-upload",
             }
         ),
         new GeneratedTusClientFeature(
@@ -746,6 +791,7 @@ final class GeneratedTusProtocolContract {
                 new GeneratedTusClientFeatureConformance(
                         new String[] {
                         "abortUpload",
+                        "abortUploadAfterStoredUrl",
                     },
                         "covered-by-generated-scenario"
                 ),
@@ -760,9 +806,12 @@ final class GeneratedTusProtocolContract {
                         "Cancel in-flight transport work without emitting user callbacks after abort."
                 ),
             },
-                new String[0],
+                new String[] {
+                "terminateTusUpload",
+            },
                 new String[] {
                 "abort-current-request",
+                "terminate-upload",
             }
         ),
         new GeneratedTusClientFeature(
@@ -1024,6 +1073,7 @@ final class GeneratedTusProtocolContract {
                         "startValidationParallelUploadsWithUploadUrl",
                         "startValidationParallelUploadsWithUploadSize",
                         "startValidationParallelUploadsWithDeferredLength",
+                        "startValidationParallelUploadsWithUploadDataDuringCreation",
                         "startValidationParallelBoundariesWithoutParallelUploads",
                         "startValidationParallelBoundariesLengthMismatch",
                     },
@@ -1070,6 +1120,9 @@ final class GeneratedTusProtocolContract {
             }
         ),
     };
+
+    static final GeneratedTusClientConformanceScenario[] CLIENT_CONFORMANCE_SCENARIOS =
+            GeneratedTusClientConformanceScenarios.CLIENT_CONFORMANCE_SCENARIOS;
 
     private GeneratedTusProtocolContract() {
     }
@@ -1237,6 +1290,51 @@ final class GeneratedTusProtocolContract {
             this.primitive = primitive;
             this.condition = condition;
             this.summary = summary;
+        }
+    }
+
+    /**
+     * Generated client conformance scenario fixture.
+     */
+    static final class GeneratedTusClientConformanceScenario {
+        final String behavior;
+        final String completionKind;
+        final String completionReason;
+        final String featureId;
+        final String scenarioId;
+        final String[] operationIds;
+        final String[] primitives;
+        final String[] eventKeys;
+
+        GeneratedTusClientConformanceScenario(
+                String behavior,
+                GeneratedTusClientConformanceCompletion completion,
+                String featureId,
+                String scenarioId,
+                String[] operationIds,
+                String[] primitives,
+                String[] eventKeys) {
+            this.behavior = behavior;
+            this.completionKind = completion.kind;
+            this.completionReason = completion.reason;
+            this.featureId = featureId;
+            this.scenarioId = scenarioId;
+            this.operationIds = operationIds;
+            this.primitives = primitives;
+            this.eventKeys = eventKeys;
+        }
+    }
+
+    /**
+     * Generated client conformance completion fixture.
+     */
+    static final class GeneratedTusClientConformanceCompletion {
+        final String kind;
+        final String reason;
+
+        GeneratedTusClientConformanceCompletion(String kind, String reason) {
+            this.kind = kind;
+            this.reason = reason;
         }
     }
 }
