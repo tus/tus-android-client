@@ -60,6 +60,7 @@ public class TestGeneratedTusManagedUploadRuntime {
                         "android",
                         "durable-os-scheduler",
                         "copy-to-owned-storage",
+                        "available",
                         "platform-key-value-store"
                 ),
                 new GeneratedTusManagedUploadTransport(
@@ -195,6 +196,7 @@ public class TestGeneratedTusManagedUploadRuntime {
                         "android",
                         "durable-os-scheduler",
                         "copy-to-owned-storage",
+                        "available",
                         "platform-key-value-store"
                 ),
                 new GeneratedTusManagedUploadTransport(
@@ -261,6 +263,7 @@ public class TestGeneratedTusManagedUploadRuntime {
                         "android",
                         "durable-os-scheduler",
                         "copy-to-owned-storage",
+                        "available",
                         "platform-key-value-store"
                 ),
                 new GeneratedTusManagedUploadTransport(
@@ -376,6 +379,61 @@ public class TestGeneratedTusManagedUploadRuntime {
                         ),
                 }
         ),
+        new GeneratedTusManagedUploadRuntimeCase(
+                new GeneratedTusManagedUploadRuntimeProfile(
+                        "managedUploadSourceUnavailable",
+                        "android",
+                        "durable-os-scheduler",
+                        "copy-to-owned-storage",
+                        "missing-before-durable-copy",
+                        "platform-key-value-store"
+                ),
+                new GeneratedTusManagedUploadTransport(
+                        "Location"
+                ),
+                new GeneratedTusManagedUploadTerminal(
+                        "failed",
+                        "source-unavailable"
+                ),
+                new GeneratedTusManagedUploadCleanup(
+                        "absent-after-source-unavailable",
+                        "absent-after-permanent-failure"
+                ),
+                new GeneratedTusManagedUploadRetryPlan(
+                        new String[] {
+                        "pending",
+                        "running",
+                        "failed",
+                    },
+                        new int[0]
+                ),
+                new GeneratedTusManagedUploadInput(
+                        "hello missing!",
+                        7,
+                        "managed-source-unavailable-fingerprint",
+                        "managed-source-unavailable",
+                        new GeneratedTusManagedUploadMetadata[] {
+                        new GeneratedTusManagedUploadMetadata(
+                                "filename",
+                                "managed-source-unavailable.txt"
+                        ),
+                    }
+                ),
+                new GeneratedTusManagedUploadAttempt[] {
+                        new GeneratedTusManagedUploadAttempt(
+                                0,
+                                "failed",
+                                new GeneratedTusManagedUploadFailure(
+                                        "before-protocol-request",
+                                        "source-unavailable",
+                                        -1
+                                ),
+                                new GeneratedTusManagedUploadRequest[] {
+
+                                }
+                        ),
+                }
+        ),
     };
     private static final GeneratedTusMethodOverride[] METHOD_OVERRIDES =
             new GeneratedTusMethodOverride[] {
@@ -407,7 +465,6 @@ public class TestGeneratedTusManagedUploadRuntime {
                 List<String> states = new ArrayList<String>();
                 File source = writeSourceFile(testCase);
                 File ownedSource = ownedSourceFile(testCase, source);
-                copyDurableSource(testCase, source, ownedSource);
                 recordState(testCase, states, stateStore, "pending");
 
                 final TusPreferencesURLStore urlStore =
@@ -417,20 +474,28 @@ public class TestGeneratedTusManagedUploadRuntime {
                 client.enableResuming(urlStore);
                 client.enableRemoveFingerprintOnSuccess();
 
-                TusExecutor executor =
-                        managedExecutorFor(testCase, client, ownedSource, states, stateStore);
-                GeneratedTusAndroidScheduler scheduler =
-                        new GeneratedTusAndroidScheduler(testCase, stateStore);
                 try {
-                    Future<Boolean> future = scheduler.submit(new Callable<Boolean>() {
-                        @Override
-                        public Boolean call() throws Exception {
-                            return executor.makeAttempts();
-                        }
-                    });
-                    assertTerminalResult(testCase, future);
-                } finally {
-                    scheduler.shutdown();
+                    prepareSourceBeforeProtocol(testCase, source, ownedSource, states, stateStore);
+                    TusExecutor executor =
+                            managedExecutorFor(testCase, client, ownedSource, states, stateStore);
+                    GeneratedTusAndroidScheduler scheduler =
+                            new GeneratedTusAndroidScheduler(testCase, stateStore);
+                    try {
+                        Future<Boolean> future = scheduler.submit(new Callable<Boolean>() {
+                            @Override
+                            public Boolean call() throws Exception {
+                                return executor.makeAttempts();
+                            }
+                        });
+                        assertTerminalResult(testCase, future);
+                    } finally {
+                        scheduler.shutdown();
+                    }
+                } catch (IOException error) {
+                    if (!isSourceUnavailableBeforeProtocol(testCase)) {
+                        throw error;
+                    }
+                    assertTerminalFailure(testCase, error);
                 }
 
                 cleanupAfterTerminalState(testCase, ownedSource);
@@ -445,8 +510,8 @@ public class TestGeneratedTusManagedUploadRuntime {
                         storedStates(stateStore));
                 assertResumeUrlState(testCase, urlStore);
                 assertOwnedSourceState(testCase, ownedSource);
-                assertTrue(testCase.scenarioId, source.exists());
-                source.delete();
+                assertInputSourceState(testCase, source);
+                assertProtocolRequestCount(testCase, server.requestCount());
             } finally {
                 server.stop();
             }
@@ -588,6 +653,42 @@ public class TestGeneratedTusManagedUploadRuntime {
         assertTrue(testCase.scenarioId, ownedSource.exists());
     }
 
+    private void prepareSourceBeforeProtocol(
+            GeneratedTusManagedUploadRuntimeCase testCase,
+            File source,
+            File ownedSource,
+            List<String> states,
+            SharedPreferences stateStore) throws IOException {
+        if ("available".equals(testCase.sourceAvailability)) {
+            copyDurableSource(testCase, source, ownedSource);
+            return;
+        }
+        if ("missing-before-durable-copy".equals(testCase.sourceAvailability)) {
+            GeneratedTusManagedUploadAttempt attempt = testCase.attempts[0];
+            if (source.exists() && !source.delete()) {
+                throw new IOException("Could not remove generated input source " + source);
+            }
+            recordState(testCase, states, stateStore, "running");
+            try {
+                copyDurableSource(testCase, source, ownedSource);
+            } catch (IOException error) {
+                recordState(testCase, states, stateStore, attempt.stateAfterAttempt);
+                throw error;
+            }
+            throw new AssertionError(testCase.scenarioId + " unexpectedly prepared missing source");
+        }
+
+        throw new AssertionError(
+                testCase.scenarioId
+                        + " uses unsupported generated source availability "
+                        + testCase.sourceAvailability);
+    }
+
+    private boolean isSourceUnavailableBeforeProtocol(GeneratedTusManagedUploadRuntimeCase testCase) {
+        return "source-unavailable".equals(testCase.terminalFailure)
+                && "missing-before-durable-copy".equals(testCase.sourceAvailability);
+    }
+
     private void cleanupAfterTerminalState(
             GeneratedTusManagedUploadRuntimeCase testCase,
             File ownedSource) throws IOException {
@@ -612,11 +713,27 @@ public class TestGeneratedTusManagedUploadRuntime {
             ownedSource.delete();
             return;
         }
+        if ("absent-after-source-unavailable".equals(testCase.ownedSourceCleanup)) {
+            assertFalse(testCase.scenarioId, ownedSource.exists());
+            return;
+        }
 
         throw new AssertionError(
                 testCase.scenarioId
                         + " uses unsupported generated owned-source cleanup "
                         + testCase.ownedSourceCleanup);
+    }
+
+    private void assertInputSourceState(
+            GeneratedTusManagedUploadRuntimeCase testCase,
+            File source) {
+        if ("missing-before-durable-copy".equals(testCase.sourceAvailability)) {
+            assertFalse(testCase.scenarioId, source.exists());
+            return;
+        }
+
+        assertTrue(testCase.scenarioId, source.exists());
+        source.delete();
     }
 
     private void assertResumeUrlState(
@@ -633,6 +750,22 @@ public class TestGeneratedTusManagedUploadRuntime {
                 testCase.scenarioId
                         + " uses unsupported generated resume URL cleanup "
                         + testCase.resumeUrlCleanup);
+    }
+
+    private void assertProtocolRequestCount(
+            GeneratedTusManagedUploadRuntimeCase testCase,
+            int actualRequestCount) {
+        assertTrue(
+                testCase.scenarioId,
+                actualRequestCount == expectedProtocolRequestCount(testCase));
+    }
+
+    private int expectedProtocolRequestCount(GeneratedTusManagedUploadRuntimeCase testCase) {
+        int count = 0;
+        for (GeneratedTusManagedUploadAttempt attempt : testCase.attempts) {
+            count += attempt.requests.length;
+        }
+        return count;
     }
 
     private void recordState(
@@ -745,6 +878,7 @@ public class TestGeneratedTusManagedUploadRuntime {
     private static final class GeneratedTusManagedUploadServer {
         private final ServerSocket serverSocket;
         private final GeneratedTusManagedUploadRuntimeCase testCase;
+        private volatile int requestCount;
         private volatile boolean running;
         private Thread thread;
 
@@ -781,6 +915,10 @@ public class TestGeneratedTusManagedUploadRuntime {
             return new URL(endpointUrlFor(testCase).toString() + "/" + testCase.input.uploadPath);
         }
 
+        int requestCount() {
+            return requestCount;
+        }
+
         private void serve() {
             while (running) {
                 try {
@@ -800,6 +938,7 @@ public class TestGeneratedTusManagedUploadRuntime {
             try {
                 GeneratedTusHttpRequest httpRequest =
                         readHttpRequest(socket.getInputStream(), socket.getOutputStream());
+                requestCount += 1;
                 GeneratedTusManagedUploadRequest request = findRequest(httpRequest);
                 if (request == null) {
                     respondNotFound(socket.getOutputStream());
@@ -1071,6 +1210,7 @@ public class TestGeneratedTusManagedUploadRuntime {
         final String runtime;
         final String scheduler;
         final String sourceDurability;
+        final String sourceAvailability;
         final String stateBackend;
         final String locationHeaderName;
         final String terminalState;
@@ -1095,6 +1235,7 @@ public class TestGeneratedTusManagedUploadRuntime {
             this.runtime = profile.runtime;
             this.scheduler = profile.scheduler;
             this.sourceDurability = profile.sourceDurability;
+            this.sourceAvailability = profile.sourceAvailability;
             this.stateBackend = profile.stateBackend;
             this.locationHeaderName = transport.locationHeaderName;
             this.terminalState = terminal.state;
@@ -1124,6 +1265,7 @@ public class TestGeneratedTusManagedUploadRuntime {
         final String runtime;
         final String scheduler;
         final String sourceDurability;
+        final String sourceAvailability;
         final String stateBackend;
 
         GeneratedTusManagedUploadRuntimeProfile(
@@ -1131,11 +1273,13 @@ public class TestGeneratedTusManagedUploadRuntime {
                 String runtime,
                 String scheduler,
                 String sourceDurability,
+                String sourceAvailability,
                 String stateBackend) {
             this.scenarioId = scenarioId;
             this.runtime = runtime;
             this.scheduler = scheduler;
             this.sourceDurability = sourceDurability;
+            this.sourceAvailability = sourceAvailability;
             this.stateBackend = stateBackend;
         }
     }
