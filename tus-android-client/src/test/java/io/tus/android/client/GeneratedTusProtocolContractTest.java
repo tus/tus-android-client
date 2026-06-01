@@ -33,6 +33,24 @@ public class GeneratedTusProtocolContractTest {
         assertEquals(url, store.get("fingerprint"));
     }
 
+    @Test
+    public void shouldCoverManagedUploadProofCases() {
+        for (GeneratedTusProtocolContract.GeneratedTusManagedUploadProofCase proofCase
+                : GeneratedTusProtocolContract.MANAGED_UPLOAD_PROOF_CASES) {
+            assertEquals("managedUpload", proofCase.featureId);
+            assertEquals("feature-over-protocol", proofCase.layer);
+            assertContains(
+                    GeneratedTusProtocolContract.MANAGED_UPLOAD_SCENARIO_IDS,
+                    proofCase.scenarioId);
+            for (String primitive : proofCase.requiredPrimitives) {
+                assertContains(GeneratedTusProtocolContract.MANAGED_UPLOAD_PRIMITIVES, primitive);
+            }
+            for (String featureId : proofCase.protocolFeatureIds) {
+                findFeature(featureId);
+            }
+        }
+    }
+
     private static GeneratedTusProtocolContract.GeneratedTusClientFeature findFeature(
             String featureId) {
         for (GeneratedTusProtocolContract.GeneratedTusClientFeature feature
