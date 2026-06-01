@@ -55,8 +55,8 @@ public class TestGeneratedTusManagedUploadRuntime {
     private static final GeneratedTusManagedUploadRuntimeCase[] CASES =
             new GeneratedTusManagedUploadRuntimeCase[] {
         new GeneratedTusManagedUploadRuntimeCase(
-                "managedUploadDurableRetry",
                 new GeneratedTusManagedUploadRuntimeProfile(
+                        "managedUploadDurableRetry",
                         "android",
                         "durable-os-scheduler",
                         "copy-to-owned-storage",
@@ -190,8 +190,8 @@ public class TestGeneratedTusManagedUploadRuntime {
                 }
         ),
         new GeneratedTusManagedUploadRuntimeCase(
-                "managedUploadPermanentFailure",
                 new GeneratedTusManagedUploadRuntimeProfile(
+                        "managedUploadPermanentFailure",
                         "android",
                         "durable-os-scheduler",
                         "copy-to-owned-storage",
@@ -963,7 +963,6 @@ public class TestGeneratedTusManagedUploadRuntime {
         final GeneratedTusManagedUploadAttempt[] attempts;
 
         GeneratedTusManagedUploadRuntimeCase(
-                String scenarioId,
                 GeneratedTusManagedUploadRuntimeProfile profile,
                 GeneratedTusManagedUploadTransport transport,
                 GeneratedTusManagedUploadTerminal terminal,
@@ -971,7 +970,7 @@ public class TestGeneratedTusManagedUploadRuntime {
                 GeneratedTusManagedUploadRetryPlan retryPlan,
                 GeneratedTusManagedUploadInput input,
                 GeneratedTusManagedUploadAttempt[] attempts) {
-            this.scenarioId = scenarioId;
+            this.scenarioId = profile.scenarioId;
             this.runtime = profile.runtime;
             this.scheduler = profile.scheduler;
             this.sourceDurability = profile.sourceDurability;
@@ -1000,16 +999,19 @@ public class TestGeneratedTusManagedUploadRuntime {
     }
 
     private static final class GeneratedTusManagedUploadRuntimeProfile {
+        final String scenarioId;
         final String runtime;
         final String scheduler;
         final String sourceDurability;
         final String stateBackend;
 
         GeneratedTusManagedUploadRuntimeProfile(
+                String scenarioId,
                 String runtime,
                 String scheduler,
                 String sourceDurability,
                 String stateBackend) {
+            this.scenarioId = scenarioId;
             this.runtime = runtime;
             this.scheduler = scheduler;
             this.sourceDurability = sourceDurability;
