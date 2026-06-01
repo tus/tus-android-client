@@ -11,6 +11,7 @@ import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assume;
 import org.junit.Test;
@@ -69,7 +70,7 @@ public class Api2DevdockTusUploadExampleTest {
             Activity activity,
             JSONObject scenario,
             JSONObject createResponse
-    ) throws IOException, ProtocolException {
+    ) throws IOException, JSONException, ProtocolException {
         final JSONObject uploadConfig = scenario.getJSONObject("upload");
         final byte[] content = scenarioBytes(uploadConfig);
         final Uri uri = registerContentUri(activity, content);
@@ -118,7 +119,7 @@ public class Api2DevdockTusUploadExampleTest {
         return uri;
     }
 
-    private static JSONObject loadScenario(String scenarioPath) throws IOException {
+    private static JSONObject loadScenario(String scenarioPath) throws IOException, JSONException {
         final byte[] contents = Files.readAllBytes(Paths.get(scenarioPath));
         return new JSONObject(new String(contents, StandardCharsets.UTF_8));
     }
@@ -141,7 +142,7 @@ public class Api2DevdockTusUploadExampleTest {
         return "true".equals(System.getProperty("api2DevdockTusUpload.required"));
     }
 
-    private static void writeResult(String uploadUrl) throws IOException {
+    private static void writeResult(String uploadUrl) throws IOException, JSONException {
         final String resultPath = System.getenv("API2_SDK_EXAMPLE_RESULT");
         if (resultPath == null || resultPath.isEmpty()) {
             return;
@@ -155,7 +156,7 @@ public class Api2DevdockTusUploadExampleTest {
         );
     }
 
-    private static byte[] scenarioBytes(JSONObject uploadConfig) {
+    private static byte[] scenarioBytes(JSONObject uploadConfig) throws JSONException {
         final JSONObject source = uploadConfig.getJSONObject("source");
         final String kind = source.getString("kind");
         if (!"bytes".equals(kind)) {
@@ -174,7 +175,7 @@ public class Api2DevdockTusUploadExampleTest {
             JSONObject uploadConfig,
             JSONObject scenario,
             JSONObject createResponse
-    ) {
+    ) throws JSONException {
         final JSONArray fields = uploadConfig.getJSONArray("metadata");
         final Map<String, String> metadata = new LinkedHashMap<String, String>();
         for (int index = 0; index < fields.length(); index++) {
@@ -196,7 +197,7 @@ public class Api2DevdockTusUploadExampleTest {
             JSONObject valueSpec,
             JSONObject scenario,
             JSONObject createResponse
-    ) {
+    ) throws JSONException {
         if (valueSpec.has("value")) {
             return valueSpec.get("value");
         }
@@ -215,7 +216,7 @@ public class Api2DevdockTusUploadExampleTest {
         return readPath(rootValue, source.getJSONArray("path"));
     }
 
-    private static Object readPath(Object value, JSONArray pathParts) {
+    private static Object readPath(Object value, JSONArray pathParts) throws JSONException {
         Object current = value;
         for (int index = 0; index < pathParts.length(); index++) {
             final Object part = pathParts.get(index);
