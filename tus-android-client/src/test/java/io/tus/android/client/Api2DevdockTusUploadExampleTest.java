@@ -18,6 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.ConscryptMode;
 import org.robolectric.shadows.ShadowContentResolver;
 
 import java.io.File;
@@ -38,6 +39,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(RobolectricTestRunner.class)
+@ConscryptMode(ConscryptMode.Mode.OFF)
 public class Api2DevdockTusUploadExampleTest {
     private static final String PROVIDER_AUTHORITY = "io.tus.android.client.api2devdock";
 
