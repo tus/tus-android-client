@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.SharedPreferences;
+import android.content.pm.ProviderInfo;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
@@ -113,9 +114,13 @@ public class Api2DevdockTusUploadExampleTest {
         Files.write(source.toPath(), content);
 
         final Uri uri = Uri.parse("content://" + PROVIDER_AUTHORITY + "/api2-devdock-upload.txt");
+        final Api2DevdockContentProvider provider = new Api2DevdockContentProvider(source);
+        final ProviderInfo providerInfo = new ProviderInfo();
+        providerInfo.authority = PROVIDER_AUTHORITY;
+        provider.attachInfo(activity, providerInfo);
         ShadowContentResolver.registerProviderInternal(
                 PROVIDER_AUTHORITY,
-                new Api2DevdockContentProvider(source)
+                provider
         );
 
         return uri;
