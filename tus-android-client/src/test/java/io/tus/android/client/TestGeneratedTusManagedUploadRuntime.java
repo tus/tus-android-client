@@ -255,6 +255,127 @@ public class TestGeneratedTusManagedUploadRuntime {
                         ),
                 }
         ),
+        new GeneratedTusManagedUploadRuntimeCase(
+                new GeneratedTusManagedUploadRuntimeProfile(
+                        "managedUploadRetryPolicyExhausted",
+                        "android",
+                        "durable-os-scheduler",
+                        "copy-to-owned-storage",
+                        "platform-key-value-store"
+                ),
+                new GeneratedTusManagedUploadTransport(
+                        "Location"
+                ),
+                new GeneratedTusManagedUploadTerminal(
+                        "failed",
+                        "retry-policy-exhausted"
+                ),
+                new GeneratedTusManagedUploadCleanup(
+                        "retain-owned-source-after-permanent-failure",
+                        "absent-after-permanent-failure"
+                ),
+                new GeneratedTusManagedUploadRetryPlan(
+                        new String[] {
+                        "pending",
+                        "running",
+                        "failed",
+                        "running",
+                        "failed",
+                        "running",
+                        "failed",
+                    },
+                        new int[] {
+                        0,
+                        0,
+                    }
+                ),
+                new GeneratedTusManagedUploadInput(
+                        "hello retries!",
+                        7,
+                        "managed-retry-exhausted-fingerprint",
+                        "managed-retry-exhausted",
+                        new GeneratedTusManagedUploadMetadata[] {
+                        new GeneratedTusManagedUploadMetadata(
+                                "filename",
+                                "managed-retry-exhausted.txt"
+                        ),
+                    }
+                ),
+                new GeneratedTusManagedUploadAttempt[] {
+                        new GeneratedTusManagedUploadAttempt(
+                                0,
+                                "failed",
+                                new GeneratedTusManagedUploadFailure(
+                                        "during-protocol-request",
+                                        "retryable-protocol-error",
+                                        -1
+                                ),
+                                new GeneratedTusManagedUploadRequest[] {
+                                        new GeneratedTusManagedUploadRequest(
+                                                "POST",
+                                                "endpoint",
+                                                0,
+                                                500,
+                                                new GeneratedTusManagedUploadHeader[] {
+                                                new GeneratedTusManagedUploadHeader(
+                                                        "Upload-Length",
+                                                        "14"
+                                                ),
+                                            },
+                                                new GeneratedTusManagedUploadHeader[0]
+                                        ),
+                                }
+                        ),
+                        new GeneratedTusManagedUploadAttempt(
+                                1,
+                                "failed",
+                                new GeneratedTusManagedUploadFailure(
+                                        "during-protocol-request",
+                                        "retryable-protocol-error",
+                                        -1
+                                ),
+                                new GeneratedTusManagedUploadRequest[] {
+                                        new GeneratedTusManagedUploadRequest(
+                                                "POST",
+                                                "endpoint",
+                                                0,
+                                                500,
+                                                new GeneratedTusManagedUploadHeader[] {
+                                                new GeneratedTusManagedUploadHeader(
+                                                        "Upload-Length",
+                                                        "14"
+                                                ),
+                                            },
+                                                new GeneratedTusManagedUploadHeader[0]
+                                        ),
+                                }
+                        ),
+                        new GeneratedTusManagedUploadAttempt(
+                                2,
+                                "failed",
+                                new GeneratedTusManagedUploadFailure(
+                                        "during-protocol-request",
+                                        "retryable-protocol-error",
+                                        -1
+                                ),
+                                new GeneratedTusManagedUploadRequest[] {
+                                        new GeneratedTusManagedUploadRequest(
+                                                "POST",
+                                                "endpoint",
+                                                0,
+                                                500,
+                                                new GeneratedTusManagedUploadHeader[] {
+                                                new GeneratedTusManagedUploadHeader(
+                                                        "Upload-Length",
+                                                        "14"
+                                                ),
+                                            },
+                                                new GeneratedTusManagedUploadHeader[0]
+                                        ),
+                                }
+                        ),
+                }
+        ),
     };
     private static final GeneratedTusMethodOverride[] METHOD_OVERRIDES =
             new GeneratedTusMethodOverride[] {
