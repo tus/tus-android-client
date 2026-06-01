@@ -504,7 +504,8 @@ public class TestGeneratedTusManagedUploadRuntime {
 
         private void handle(Socket socket) throws IOException {
             try {
-                GeneratedTusHttpRequest httpRequest = readHttpRequest(socket.getInputStream());
+                GeneratedTusHttpRequest httpRequest =
+                        readHttpRequest(socket.getInputStream(), socket.getOutputStream());
                 GeneratedTusManagedUploadRequest request = findRequest(httpRequest);
                 if (request == null) {
                     respondNotFound(socket.getOutputStream());
@@ -597,7 +598,8 @@ public class TestGeneratedTusManagedUploadRuntime {
             output.write(response.toString().getBytes(StandardCharsets.UTF_8));
         }
 
-        private GeneratedTusHttpRequest readHttpRequest(InputStream input) throws IOException {
+        private GeneratedTusHttpRequest readHttpRequest(InputStream input, OutputStream output)
+                throws IOException {
             ByteArrayOutputStream headerBytes = new ByteArrayOutputStream();
             int previousThird = -1;
             int previousSecond = -1;
@@ -640,7 +642,12 @@ public class TestGeneratedTusManagedUploadRuntime {
                 values.add(value);
             }
 
-            int bodySize = drainRequestBody(input, contentLength(headers));
+            if ("100-continue".equalsIgnoreCase(headerValue(headers, "Expect"))) {
+                output.write("HTTP/1.1 100 Continue\r\n\r\n".getBytes(StandardCharsets.UTF_8));
+                output.flush();
+            }
+
+            int bodySize = drainRequestBody(input, headers);
             return new GeneratedTusHttpRequest(requestLine[0], requestLine[1], headers, bodySize);
         }
 
@@ -653,7 +660,16 @@ public class TestGeneratedTusManagedUploadRuntime {
             return Integer.parseInt(header);
         }
 
-        private static int drainRequestBody(InputStream input, int contentLength)
+        private static int drainRequestBody(InputStream input, Map<String, List<String>> headers)
+                throws IOException {
+            if ("chunked".equalsIgnoreCase(headerValue(headers, "Transfer-Encoding"))) {
+                return drainChunkedRequestBody(input);
+            }
+
+            return drainFixedRequestBody(input, contentLength(headers));
+        }
+
+        private static int drainFixedRequestBody(InputStream input, int contentLength)
                 throws IOException {
             int remaining = contentLength;
             byte[] buffer = new byte[8192];
@@ -665,6 +681,46 @@ public class TestGeneratedTusManagedUploadRuntime {
                 remaining -= read;
             }
             return contentLength - remaining;
+        }
+
+        private static int drainChunkedRequestBody(InputStream input) throws IOException {
+            int bodySize = 0;
+            while (true) {
+                String line = readAsciiLine(input);
+                int extensionIndex = line.indexOf(";");
+                String sizeText = extensionIndex < 0 ? line : line.substring(0, extensionIndex);
+                int chunkSize = Integer.parseInt(sizeText.trim(), 16);
+                if (chunkSize == 0) {
+                    drainChunkedTrailers(input);
+                    return bodySize;
+                }
+
+                bodySize += drainFixedRequestBody(input, chunkSize);
+                readAsciiLine(input);
+            }
+        }
+
+        private static void drainChunkedTrailers(InputStream input) throws IOException {
+            while (true) {
+                String line = readAsciiLine(input);
+                if (line.length() == 0) {
+                    return;
+                }
+            }
+        }
+
+        private static String readAsciiLine(InputStream input) throws IOException {
+            ByteArrayOutputStream line = new ByteArrayOutputStream();
+            int current;
+            while ((current = input.read()) != -1) {
+                if (current == '\n') {
+                    break;
+                }
+                if (current != '\r') {
+                    line.write(current);
+                }
+            }
+            return line.toString(StandardCharsets.UTF_8.name());
         }
 
         private static void respondNotFound(OutputStream output) throws IOException {
