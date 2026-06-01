@@ -9,17 +9,16 @@ package io.tus.android.client;
 import android.app.Activity;
 import android.content.SharedPreferences;
 
-import com.sun.net.httpserver.Headers;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
-
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -449,56 +448,80 @@ public class TestGeneratedTusManagedUploadRuntime {
         }
     }
 
-    private static final class GeneratedTusManagedUploadServer implements HttpHandler {
-        private final HttpServer server;
+    private static final class GeneratedTusManagedUploadServer {
+        private final ServerSocket serverSocket;
         private final GeneratedTusManagedUploadRuntimeCase testCase;
+        private volatile boolean running;
+        private Thread thread;
 
         GeneratedTusManagedUploadServer(GeneratedTusManagedUploadRuntimeCase testCase)
                 throws IOException {
             this.testCase = testCase;
-            this.server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
-            this.server.createContext("/", this);
+            this.serverSocket = new ServerSocket(0);
         }
 
         void start() {
-            server.start();
+            running = true;
+            thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    serve();
+                }
+            });
+            thread.start();
         }
 
-        void stop() {
-            server.stop(0);
+        void stop() throws IOException, InterruptedException {
+            running = false;
+            serverSocket.close();
+            if (thread != null) {
+                thread.join(1000);
+            }
         }
 
         URL endpointUrlFor(GeneratedTusManagedUploadRuntimeCase testCase) throws IOException {
-            return new URL("http://127.0.0.1:" + server.getAddress().getPort() + "/files");
+            return new URL("http://127.0.0.1:" + serverSocket.getLocalPort() + "/files");
         }
 
         URL uploadUrlFor(GeneratedTusManagedUploadRuntimeCase testCase) throws IOException {
             return new URL(endpointUrlFor(testCase).toString() + "/" + testCase.input.uploadPath);
         }
 
-        @Override
-        public void handle(HttpExchange exchange) throws IOException {
-            int bodySize = drainRequestBody(exchange);
-            GeneratedTusManagedUploadRequest request = findRequest(exchange, bodySize);
-            if (request == null) {
-                respondNotFound(exchange);
-                return;
+        private void serve() {
+            while (running) {
+                try {
+                    Socket socket = serverSocket.accept();
+                    handle(socket);
+                } catch (SocketException error) {
+                    if (running) {
+                        throw new AssertionError(error);
+                    }
+                } catch (IOException error) {
+                    throw new AssertionError(error);
+                }
             }
-
-            Headers responseHeaders = exchange.getResponseHeaders();
-            for (GeneratedTusManagedUploadHeader header : request.responseHeaders) {
-                responseHeaders.add(header.name, responseHeaderValueFor(header));
-            }
-            exchange.sendResponseHeaders(request.statusCode, -1);
-            exchange.close();
         }
 
-        private GeneratedTusManagedUploadRequest findRequest(
-                HttpExchange exchange,
-                int bodySize) throws IOException {
+        private void handle(Socket socket) throws IOException {
+            try {
+                GeneratedTusHttpRequest httpRequest = readHttpRequest(socket.getInputStream());
+                GeneratedTusManagedUploadRequest request = findRequest(httpRequest);
+                if (request == null) {
+                    respondNotFound(socket.getOutputStream());
+                    return;
+                }
+
+                respond(socket.getOutputStream(), request);
+            } finally {
+                socket.close();
+            }
+        }
+
+        private GeneratedTusManagedUploadRequest findRequest(GeneratedTusHttpRequest httpRequest)
+                throws IOException {
             for (GeneratedTusManagedUploadAttempt attempt : testCase.attempts) {
                 for (GeneratedTusManagedUploadRequest request : attempt.requests) {
-                    if (matchesRequest(exchange, bodySize, request)) {
+                    if (matchesRequest(httpRequest, request)) {
                         return request;
                     }
                 }
@@ -508,20 +531,19 @@ public class TestGeneratedTusManagedUploadRuntime {
         }
 
         private boolean matchesRequest(
-                HttpExchange exchange,
-                int bodySize,
+                GeneratedTusHttpRequest httpRequest,
                 GeneratedTusManagedUploadRequest request) throws IOException {
-            if (!pathFor(request).equals(exchange.getRequestURI().getPath())) {
+            if (!pathFor(request).equals(httpRequest.path)) {
                 return false;
             }
-            if (bodySize != request.bodySize) {
+            if (httpRequest.bodySize != request.bodySize) {
                 return false;
             }
-            if (!methodMatches(exchange, request)) {
+            if (!methodMatches(httpRequest, request)) {
                 return false;
             }
             for (GeneratedTusManagedUploadHeader header : request.requestHeaders) {
-                if (!header.value.equals(headerValue(exchange.getRequestHeaders(), header.name))) {
+                if (!header.value.equals(headerValue(httpRequest.headers, header.name))) {
                     return false;
                 }
             }
@@ -530,16 +552,16 @@ public class TestGeneratedTusManagedUploadRuntime {
         }
 
         private boolean methodMatches(
-                HttpExchange exchange,
+                GeneratedTusHttpRequest httpRequest,
                 GeneratedTusManagedUploadRequest request) {
-            if (request.method.equals(exchange.getRequestMethod())) {
+            if (request.method.equals(httpRequest.method)) {
                 return true;
             }
             GeneratedTusMethodOverride methodOverride = methodOverrideFor(request.method);
             return methodOverride != null
-                    && methodOverride.method.equals(exchange.getRequestMethod())
+                    && methodOverride.method.equals(httpRequest.method)
                     && methodOverride.headerValue.equals(
-                            headerValue(exchange.getRequestHeaders(), methodOverride.headerName));
+                            headerValue(httpRequest.headers, methodOverride.headerName));
         }
 
         private String pathFor(GeneratedTusManagedUploadRequest request) throws IOException {
@@ -559,28 +581,101 @@ public class TestGeneratedTusManagedUploadRuntime {
             return uploadUrlFor(testCase).toString();
         }
 
-        private static int drainRequestBody(HttpExchange exchange) throws IOException {
-            int size = 0;
+        private void respond(OutputStream output, GeneratedTusManagedUploadRequest request)
+                throws IOException {
+            StringBuilder response = new StringBuilder();
+            response.append("HTTP/1.1 ").append(request.statusCode).append(" Generated\r\n");
+            for (GeneratedTusManagedUploadHeader header : request.responseHeaders) {
+                response.append(header.name)
+                        .append(": ")
+                        .append(responseHeaderValueFor(header))
+                        .append("\r\n");
+            }
+            response.append("Content-Length: 0\r\n");
+            response.append("Connection: close\r\n");
+            response.append("\r\n");
+            output.write(response.toString().getBytes(StandardCharsets.UTF_8));
+        }
+
+        private GeneratedTusHttpRequest readHttpRequest(InputStream input) throws IOException {
+            ByteArrayOutputStream headerBytes = new ByteArrayOutputStream();
+            int previousThird = -1;
+            int previousSecond = -1;
+            int previousFirst = -1;
+            int current;
+            while ((current = input.read()) != -1) {
+                headerBytes.write(current);
+                if (
+                        previousThird == '\r'
+                        && previousSecond == '\n'
+                        && previousFirst == '\r'
+                        && current == '\n') {
+                    break;
+                }
+                previousThird = previousSecond;
+                previousSecond = previousFirst;
+                previousFirst = current;
+            }
+
+            String headerText = headerBytes.toString(StandardCharsets.UTF_8.name());
+            String[] lines = headerText.split("\\r\\n");
+            String[] requestLine = lines[0].split(" ");
+            Map<String, List<String>> headers = new LinkedHashMap<String, List<String>>();
+            for (int index = 1; index < lines.length; index += 1) {
+                String line = lines[index];
+                if (line.length() == 0) {
+                    continue;
+                }
+                int separator = line.indexOf(":");
+                if (separator < 0) {
+                    continue;
+                }
+                String name = line.substring(0, separator);
+                String value = line.substring(separator + 1).trim();
+                List<String> values = headers.get(name);
+                if (values == null) {
+                    values = new ArrayList<String>();
+                    headers.put(name, values);
+                }
+                values.add(value);
+            }
+
+            int bodySize = drainRequestBody(input, contentLength(headers));
+            return new GeneratedTusHttpRequest(requestLine[0], requestLine[1], headers, bodySize);
+        }
+
+        private static int contentLength(Map<String, List<String>> headers) {
+            String header = headerValue(headers, "Content-Length");
+            if (header == null || header.length() == 0) {
+                return 0;
+            }
+
+            return Integer.parseInt(header);
+        }
+
+        private static int drainRequestBody(InputStream input, int contentLength)
+                throws IOException {
+            int remaining = contentLength;
             byte[] buffer = new byte[8192];
-            int read;
-            while ((read = exchange.getRequestBody().read(buffer)) != -1) {
-                size += read;
+            while (remaining > 0) {
+                int read = input.read(buffer, 0, Math.min(buffer.length, remaining));
+                if (read == -1) {
+                    break;
+                }
+                remaining -= read;
             }
-            return size;
+            return contentLength - remaining;
         }
 
-        private static void respondNotFound(HttpExchange exchange) throws IOException {
+        private static void respondNotFound(OutputStream output) throws IOException {
             byte[] body = "No generated request matched".getBytes(StandardCharsets.UTF_8);
-            exchange.sendResponseHeaders(404, body.length);
-            OutputStream output = exchange.getResponseBody();
-            try {
-                output.write(body);
-            } finally {
-                output.close();
-            }
+            output.write("HTTP/1.1 404 Generated\r\n".getBytes(StandardCharsets.UTF_8));
+            output.write(("Content-Length: " + body.length + "\r\n").getBytes(StandardCharsets.UTF_8));
+            output.write("Connection: close\r\n\r\n".getBytes(StandardCharsets.UTF_8));
+            output.write(body);
         }
 
-        private static String headerValue(Headers headers, String name) {
+        private static String headerValue(Map<String, List<String>> headers, String name) {
             for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
                 if (!entry.getKey().equalsIgnoreCase(name) || entry.getValue().isEmpty()) {
                     continue;
@@ -600,6 +695,24 @@ public class TestGeneratedTusManagedUploadRuntime {
             }
 
             return null;
+        }
+
+        private static final class GeneratedTusHttpRequest {
+            final String method;
+            final String path;
+            final Map<String, List<String>> headers;
+            final int bodySize;
+
+            GeneratedTusHttpRequest(
+                    String method,
+                    String path,
+                    Map<String, List<String>> headers,
+                    int bodySize) {
+                this.method = method;
+                this.path = path;
+                this.headers = headers;
+                this.bodySize = bodySize;
+            }
         }
     }
 
