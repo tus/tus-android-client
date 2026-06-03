@@ -120,60 +120,56 @@ public class TestGeneratedTusManagedUploadRuntime {
                                                 "endpoint",
                                                 0,
                                                 201,
-                                                new GeneratedTusManagedUploadHeader[] {
-                                                new GeneratedTusManagedUploadHeader(
-                                                        "Upload-Length",
-                                                        "14"
+                                                new GeneratedTusManagedUploadHeaderSet(
+                                                        true,
+                                                        new GeneratedTusManagedUploadHeader[] {
+                                                        new GeneratedTusManagedUploadHeader(
+                                                                "Upload-Length",
+                                                                "14"
+                                                        ),
+                                                        new GeneratedTusManagedUploadHeader(
+                                                                "Upload-Metadata",
+                                                                "filename bWFuYWdlZC50eHQ="
+                                                        ),
+                                                    }
                                                 ),
-                                                new GeneratedTusManagedUploadHeader(
-                                                        "Tus-Resumable",
-                                                        "1.0.0"
-                                                ),
-                                                new GeneratedTusManagedUploadHeader(
-                                                        "Upload-Metadata",
-                                                        "filename bWFuYWdlZC50eHQ="
-                                                ),
-                                            },
-                                                new GeneratedTusManagedUploadHeader[] {
-                                                new GeneratedTusManagedUploadHeader(
-                                                        "Location",
-                                                        "https://tus.io/uploads/managed-durable-retry"
-                                                ),
-                                                new GeneratedTusManagedUploadHeader(
-                                                        "Tus-Resumable",
-                                                        "1.0.0"
-                                                ),
-                                            }
+                                                new GeneratedTusManagedUploadHeaderSet(
+                                                        true,
+                                                        new GeneratedTusManagedUploadHeader[] {
+                                                        new GeneratedTusManagedUploadHeader(
+                                                                "Location",
+                                                                "https://tus.io/uploads/managed-durable-retry"
+                                                        ),
+                                                    }
+                                                )
                                         ),
                                         new GeneratedTusManagedUploadRequest(
                                                 "PATCH",
                                                 "upload",
                                                 7,
                                                 204,
-                                                new GeneratedTusManagedUploadHeader[] {
-                                                new GeneratedTusManagedUploadHeader(
-                                                        "Upload-Offset",
-                                                        "0"
+                                                new GeneratedTusManagedUploadHeaderSet(
+                                                        true,
+                                                        new GeneratedTusManagedUploadHeader[] {
+                                                        new GeneratedTusManagedUploadHeader(
+                                                                "Upload-Offset",
+                                                                "0"
+                                                        ),
+                                                        new GeneratedTusManagedUploadHeader(
+                                                                "Content-Type",
+                                                                "application/offset+octet-stream"
+                                                        ),
+                                                    }
                                                 ),
-                                                new GeneratedTusManagedUploadHeader(
-                                                        "Content-Type",
-                                                        "application/offset+octet-stream"
-                                                ),
-                                                new GeneratedTusManagedUploadHeader(
-                                                        "Tus-Resumable",
-                                                        "1.0.0"
-                                                ),
-                                            },
-                                                new GeneratedTusManagedUploadHeader[] {
-                                                new GeneratedTusManagedUploadHeader(
-                                                        "Upload-Offset",
-                                                        "7"
-                                                ),
-                                                new GeneratedTusManagedUploadHeader(
-                                                        "Tus-Resumable",
-                                                        "1.0.0"
-                                                ),
-                                            }
+                                                new GeneratedTusManagedUploadHeaderSet(
+                                                        true,
+                                                        new GeneratedTusManagedUploadHeader[] {
+                                                        new GeneratedTusManagedUploadHeader(
+                                                                "Upload-Offset",
+                                                                "7"
+                                                        ),
+                                                    }
+                                                )
                                         ),
                                 }
                         ),
@@ -187,56 +183,51 @@ public class TestGeneratedTusManagedUploadRuntime {
                                                 "upload",
                                                 0,
                                                 200,
-                                                new GeneratedTusManagedUploadHeader[] {
-                                                new GeneratedTusManagedUploadHeader(
-                                                        "Tus-Resumable",
-                                                        "1.0.0"
+                                                new GeneratedTusManagedUploadHeaderSet(
+                                                        true,
+                                                        new GeneratedTusManagedUploadHeader[0]
                                                 ),
-                                            },
-                                                new GeneratedTusManagedUploadHeader[] {
-                                                new GeneratedTusManagedUploadHeader(
-                                                        "Upload-Length",
-                                                        "14"
-                                                ),
-                                                new GeneratedTusManagedUploadHeader(
-                                                        "Upload-Offset",
-                                                        "7"
-                                                ),
-                                                new GeneratedTusManagedUploadHeader(
-                                                        "Tus-Resumable",
-                                                        "1.0.0"
-                                                ),
-                                            }
+                                                new GeneratedTusManagedUploadHeaderSet(
+                                                        true,
+                                                        new GeneratedTusManagedUploadHeader[] {
+                                                        new GeneratedTusManagedUploadHeader(
+                                                                "Upload-Length",
+                                                                "14"
+                                                        ),
+                                                        new GeneratedTusManagedUploadHeader(
+                                                                "Upload-Offset",
+                                                                "7"
+                                                        ),
+                                                    }
+                                                )
                                         ),
                                         new GeneratedTusManagedUploadRequest(
                                                 "PATCH",
                                                 "upload",
                                                 7,
                                                 204,
-                                                new GeneratedTusManagedUploadHeader[] {
-                                                new GeneratedTusManagedUploadHeader(
-                                                        "Upload-Offset",
-                                                        "7"
+                                                new GeneratedTusManagedUploadHeaderSet(
+                                                        true,
+                                                        new GeneratedTusManagedUploadHeader[] {
+                                                        new GeneratedTusManagedUploadHeader(
+                                                                "Upload-Offset",
+                                                                "7"
+                                                        ),
+                                                        new GeneratedTusManagedUploadHeader(
+                                                                "Content-Type",
+                                                                "application/offset+octet-stream"
+                                                        ),
+                                                    }
                                                 ),
-                                                new GeneratedTusManagedUploadHeader(
-                                                        "Content-Type",
-                                                        "application/offset+octet-stream"
-                                                ),
-                                                new GeneratedTusManagedUploadHeader(
-                                                        "Tus-Resumable",
-                                                        "1.0.0"
-                                                ),
-                                            },
-                                                new GeneratedTusManagedUploadHeader[] {
-                                                new GeneratedTusManagedUploadHeader(
-                                                        "Upload-Offset",
-                                                        "14"
-                                                ),
-                                                new GeneratedTusManagedUploadHeader(
-                                                        "Tus-Resumable",
-                                                        "1.0.0"
-                                                ),
-                                            }
+                                                new GeneratedTusManagedUploadHeaderSet(
+                                                        true,
+                                                        new GeneratedTusManagedUploadHeader[] {
+                                                        new GeneratedTusManagedUploadHeader(
+                                                                "Upload-Offset",
+                                                                "14"
+                                                        ),
+                                                    }
+                                                )
                                         ),
                                 }
                         ),
@@ -304,21 +295,23 @@ public class TestGeneratedTusManagedUploadRuntime {
                                                 "endpoint",
                                                 0,
                                                 400,
-                                                new GeneratedTusManagedUploadHeader[] {
-                                                new GeneratedTusManagedUploadHeader(
-                                                        "Upload-Length",
-                                                        "14"
+                                                new GeneratedTusManagedUploadHeaderSet(
+                                                        true,
+                                                        new GeneratedTusManagedUploadHeader[] {
+                                                        new GeneratedTusManagedUploadHeader(
+                                                                "Upload-Length",
+                                                                "14"
+                                                        ),
+                                                        new GeneratedTusManagedUploadHeader(
+                                                                "Upload-Metadata",
+                                                                "filename bWFuYWdlZC1wZXJtYW5lbnQtZmFpbHVyZS50eHQ="
+                                                        ),
+                                                    }
                                                 ),
-                                                new GeneratedTusManagedUploadHeader(
-                                                        "Tus-Resumable",
-                                                        "1.0.0"
-                                                ),
-                                                new GeneratedTusManagedUploadHeader(
-                                                        "Upload-Metadata",
-                                                        "filename bWFuYWdlZC1wZXJtYW5lbnQtZmFpbHVyZS50eHQ="
-                                                ),
-                                            },
-                                                new GeneratedTusManagedUploadHeader[0]
+                                                new GeneratedTusManagedUploadHeaderSet(
+                                                        false,
+                                                        new GeneratedTusManagedUploadHeader[0]
+                                                )
                                         ),
                                 }
                         ),
@@ -393,21 +386,23 @@ public class TestGeneratedTusManagedUploadRuntime {
                                                 "endpoint",
                                                 0,
                                                 500,
-                                                new GeneratedTusManagedUploadHeader[] {
-                                                new GeneratedTusManagedUploadHeader(
-                                                        "Upload-Length",
-                                                        "14"
+                                                new GeneratedTusManagedUploadHeaderSet(
+                                                        true,
+                                                        new GeneratedTusManagedUploadHeader[] {
+                                                        new GeneratedTusManagedUploadHeader(
+                                                                "Upload-Length",
+                                                                "14"
+                                                        ),
+                                                        new GeneratedTusManagedUploadHeader(
+                                                                "Upload-Metadata",
+                                                                "filename bWFuYWdlZC1yZXRyeS1leGhhdXN0ZWQudHh0"
+                                                        ),
+                                                    }
                                                 ),
-                                                new GeneratedTusManagedUploadHeader(
-                                                        "Tus-Resumable",
-                                                        "1.0.0"
-                                                ),
-                                                new GeneratedTusManagedUploadHeader(
-                                                        "Upload-Metadata",
-                                                        "filename bWFuYWdlZC1yZXRyeS1leGhhdXN0ZWQudHh0"
-                                                ),
-                                            },
-                                                new GeneratedTusManagedUploadHeader[0]
+                                                new GeneratedTusManagedUploadHeaderSet(
+                                                        false,
+                                                        new GeneratedTusManagedUploadHeader[0]
+                                                )
                                         ),
                                 }
                         ),
@@ -425,21 +420,23 @@ public class TestGeneratedTusManagedUploadRuntime {
                                                 "endpoint",
                                                 0,
                                                 500,
-                                                new GeneratedTusManagedUploadHeader[] {
-                                                new GeneratedTusManagedUploadHeader(
-                                                        "Upload-Length",
-                                                        "14"
+                                                new GeneratedTusManagedUploadHeaderSet(
+                                                        true,
+                                                        new GeneratedTusManagedUploadHeader[] {
+                                                        new GeneratedTusManagedUploadHeader(
+                                                                "Upload-Length",
+                                                                "14"
+                                                        ),
+                                                        new GeneratedTusManagedUploadHeader(
+                                                                "Upload-Metadata",
+                                                                "filename bWFuYWdlZC1yZXRyeS1leGhhdXN0ZWQudHh0"
+                                                        ),
+                                                    }
                                                 ),
-                                                new GeneratedTusManagedUploadHeader(
-                                                        "Tus-Resumable",
-                                                        "1.0.0"
-                                                ),
-                                                new GeneratedTusManagedUploadHeader(
-                                                        "Upload-Metadata",
-                                                        "filename bWFuYWdlZC1yZXRyeS1leGhhdXN0ZWQudHh0"
-                                                ),
-                                            },
-                                                new GeneratedTusManagedUploadHeader[0]
+                                                new GeneratedTusManagedUploadHeaderSet(
+                                                        false,
+                                                        new GeneratedTusManagedUploadHeader[0]
+                                                )
                                         ),
                                 }
                         ),
@@ -457,21 +454,23 @@ public class TestGeneratedTusManagedUploadRuntime {
                                                 "endpoint",
                                                 0,
                                                 500,
-                                                new GeneratedTusManagedUploadHeader[] {
-                                                new GeneratedTusManagedUploadHeader(
-                                                        "Upload-Length",
-                                                        "14"
+                                                new GeneratedTusManagedUploadHeaderSet(
+                                                        true,
+                                                        new GeneratedTusManagedUploadHeader[] {
+                                                        new GeneratedTusManagedUploadHeader(
+                                                                "Upload-Length",
+                                                                "14"
+                                                        ),
+                                                        new GeneratedTusManagedUploadHeader(
+                                                                "Upload-Metadata",
+                                                                "filename bWFuYWdlZC1yZXRyeS1leGhhdXN0ZWQudHh0"
+                                                        ),
+                                                    }
                                                 ),
-                                                new GeneratedTusManagedUploadHeader(
-                                                        "Tus-Resumable",
-                                                        "1.0.0"
-                                                ),
-                                                new GeneratedTusManagedUploadHeader(
-                                                        "Upload-Metadata",
-                                                        "filename bWFuYWdlZC1yZXRyeS1leGhhdXN0ZWQudHh0"
-                                                ),
-                                            },
-                                                new GeneratedTusManagedUploadHeader[0]
+                                                new GeneratedTusManagedUploadHeaderSet(
+                                                        false,
+                                                        new GeneratedTusManagedUploadHeader[0]
+                                                )
                                         ),
                                 }
                         ),
@@ -1223,8 +1222,29 @@ public class TestGeneratedTusManagedUploadRuntime {
             if (!methodMatches(httpRequest, request)) {
                 return false;
             }
-            for (GeneratedTusManagedUploadHeader header : request.requestHeaders) {
-                if (!header.value.equals(headerValue(httpRequest.headers, header.name))) {
+            if (!headersMatch(
+                    httpRequest.headers,
+                    request.requestHeaders,
+                    GeneratedTusProtocolContract.DEFAULT_REQUEST_HEADERS)) {
+                return false;
+            }
+
+            return true;
+        }
+
+        private boolean headersMatch(
+                Map<String, List<String>> actualHeaders,
+                GeneratedTusManagedUploadHeaderSet expectedHeaders,
+                Map<String, String> defaultHeaders) {
+            if (expectedHeaders.includesDefaultProtocolHeaders) {
+                for (Map.Entry<String, String> entry : defaultHeaders.entrySet()) {
+                    if (!entry.getValue().equals(headerValue(actualHeaders, entry.getKey()))) {
+                        return false;
+                    }
+                }
+            }
+            for (GeneratedTusManagedUploadHeader header : expectedHeaders.headers) {
+                if (!header.value.equals(headerValue(actualHeaders, header.name))) {
                     return false;
                 }
             }
@@ -1266,16 +1286,26 @@ public class TestGeneratedTusManagedUploadRuntime {
                 throws IOException {
             StringBuilder response = new StringBuilder();
             response.append("HTTP/1.1 ").append(request.statusCode).append(" Generated\r\n");
-            for (GeneratedTusManagedUploadHeader header : request.responseHeaders) {
-                response.append(header.name)
-                        .append(": ")
-                        .append(responseHeaderValueFor(header))
-                        .append("\r\n");
+            if (request.responseHeaders.includesDefaultProtocolHeaders) {
+                for (Map.Entry<String, String> entry
+                        : GeneratedTusProtocolContract.DEFAULT_RESPONSE_HEADERS.entrySet()) {
+                    appendHeader(response, entry.getKey(), entry.getValue());
+                }
+            }
+            for (GeneratedTusManagedUploadHeader header : request.responseHeaders.headers) {
+                appendHeader(response, header.name, responseHeaderValueFor(header));
             }
             response.append("Content-Length: 0\r\n");
             response.append("Connection: close\r\n");
             response.append("\r\n");
             output.write(response.toString().getBytes(StandardCharsets.UTF_8));
+        }
+
+        private static void appendHeader(StringBuilder response, String name, String value) {
+            response.append(name)
+                    .append(": ")
+                    .append(value)
+                    .append("\r\n");
         }
 
         private GeneratedTusHttpRequest readHttpRequest(InputStream input, OutputStream output)
@@ -1648,22 +1678,34 @@ public class TestGeneratedTusManagedUploadRuntime {
         final String url;
         final int bodySize;
         final int statusCode;
-        final GeneratedTusManagedUploadHeader[] requestHeaders;
-        final GeneratedTusManagedUploadHeader[] responseHeaders;
+        final GeneratedTusManagedUploadHeaderSet requestHeaders;
+        final GeneratedTusManagedUploadHeaderSet responseHeaders;
 
         GeneratedTusManagedUploadRequest(
                 String method,
                 String url,
                 int bodySize,
                 int statusCode,
-                GeneratedTusManagedUploadHeader[] requestHeaders,
-                GeneratedTusManagedUploadHeader[] responseHeaders) {
+                GeneratedTusManagedUploadHeaderSet requestHeaders,
+                GeneratedTusManagedUploadHeaderSet responseHeaders) {
             this.method = method;
             this.url = url;
             this.bodySize = bodySize;
             this.statusCode = statusCode;
             this.requestHeaders = requestHeaders;
             this.responseHeaders = responseHeaders;
+        }
+    }
+
+    private static final class GeneratedTusManagedUploadHeaderSet {
+        final boolean includesDefaultProtocolHeaders;
+        final GeneratedTusManagedUploadHeader[] headers;
+
+        GeneratedTusManagedUploadHeaderSet(
+                boolean includesDefaultProtocolHeaders,
+                GeneratedTusManagedUploadHeader[] headers) {
+            this.includesDefaultProtocolHeaders = includesDefaultProtocolHeaders;
+            this.headers = headers;
         }
     }
 
