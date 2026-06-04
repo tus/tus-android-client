@@ -152,12 +152,12 @@ public class TestGeneratedTusManagedUploadRuntime {
                                                         true,
                                                         new GeneratedTusManagedUploadHeader[] {
                                                         new GeneratedTusManagedUploadHeader(
-                                                                "Upload-Offset",
-                                                                "0"
-                                                        ),
-                                                        new GeneratedTusManagedUploadHeader(
                                                                 "Content-Type",
                                                                 "application/offset+octet-stream"
+                                                        ),
+                                                        new GeneratedTusManagedUploadHeader(
+                                                                "Upload-Offset",
+                                                                "0"
                                                         ),
                                                     }
                                                 ),
@@ -210,12 +210,12 @@ public class TestGeneratedTusManagedUploadRuntime {
                                                         true,
                                                         new GeneratedTusManagedUploadHeader[] {
                                                         new GeneratedTusManagedUploadHeader(
-                                                                "Upload-Offset",
-                                                                "7"
-                                                        ),
-                                                        new GeneratedTusManagedUploadHeader(
                                                                 "Content-Type",
                                                                 "application/offset+octet-stream"
+                                                        ),
+                                                        new GeneratedTusManagedUploadHeader(
+                                                                "Upload-Offset",
+                                                                "7"
                                                         ),
                                                     }
                                                 ),
