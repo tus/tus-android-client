@@ -160,7 +160,7 @@ public class TestGeneratedTusManagedUploadRuntime {
                                                 )
                                         ),
                                         new GeneratedTusManagedUploadRequest(
-                                                "PATCH",
+                                                "POST",
                                                 "upload",
                                                 7,
                                                 204,
@@ -174,6 +174,10 @@ public class TestGeneratedTusManagedUploadRuntime {
                                                         new GeneratedTusManagedUploadHeader(
                                                                 "Upload-Offset",
                                                                 "0"
+                                                        ),
+                                                        new GeneratedTusManagedUploadHeader(
+                                                                "X-HTTP-Method-Override",
+                                                                "PATCH"
                                                         ),
                                                     }
                                                 ),
@@ -219,7 +223,7 @@ public class TestGeneratedTusManagedUploadRuntime {
                                                 )
                                         ),
                                         new GeneratedTusManagedUploadRequest(
-                                                "PATCH",
+                                                "POST",
                                                 "upload",
                                                 7,
                                                 204,
@@ -233,6 +237,10 @@ public class TestGeneratedTusManagedUploadRuntime {
                                                         new GeneratedTusManagedUploadHeader(
                                                                 "Upload-Offset",
                                                                 "7"
+                                                        ),
+                                                        new GeneratedTusManagedUploadHeader(
+                                                                "X-HTTP-Method-Override",
+                                                                "PATCH"
                                                         ),
                                                     }
                                                 ),
@@ -675,15 +683,6 @@ public class TestGeneratedTusManagedUploadRuntime {
 
                         }
                 )
-        ),
-    };
-    private static final GeneratedTusMethodOverride[] METHOD_OVERRIDES =
-            new GeneratedTusMethodOverride[] {
-        new GeneratedTusMethodOverride(
-                "PATCH",
-                "POST",
-                "X-HTTP-Method-Override",
-                "PATCH"
         ),
     };
 
@@ -1266,14 +1265,7 @@ public class TestGeneratedTusManagedUploadRuntime {
         private boolean methodMatches(
                 GeneratedTusHttpRequest httpRequest,
                 GeneratedTusManagedUploadRequest request) {
-            if (request.method.equals(httpRequest.method)) {
-                return true;
-            }
-            GeneratedTusMethodOverride methodOverride = methodOverrideFor(request.method);
-            return methodOverride != null
-                    && methodOverride.method.equals(httpRequest.method)
-                    && methodOverride.headerValue.equals(
-                            headerValue(httpRequest.headers, methodOverride.headerName));
+            return request.method.equals(httpRequest.method);
         }
 
         private String pathFor(GeneratedTusManagedUploadRequest request) throws IOException {
@@ -1459,16 +1451,6 @@ public class TestGeneratedTusManagedUploadRuntime {
                 }
 
                 return entry.getValue().get(0);
-            }
-
-            return null;
-        }
-
-        private static GeneratedTusMethodOverride methodOverrideFor(String originalMethod) {
-            for (GeneratedTusMethodOverride methodOverride : METHOD_OVERRIDES) {
-                if (methodOverride.originalMethod.equals(originalMethod)) {
-                    return methodOverride;
-                }
             }
 
             return null;
@@ -1841,21 +1823,4 @@ public class TestGeneratedTusManagedUploadRuntime {
         }
     }
 
-    private static final class GeneratedTusMethodOverride {
-        final String originalMethod;
-        final String method;
-        final String headerName;
-        final String headerValue;
-
-        GeneratedTusMethodOverride(
-                String originalMethod,
-                String method,
-                String headerName,
-                String headerValue) {
-            this.originalMethod = originalMethod;
-            this.method = method;
-            this.headerName = headerName;
-            this.headerValue = headerValue;
-        }
-    }
 }
