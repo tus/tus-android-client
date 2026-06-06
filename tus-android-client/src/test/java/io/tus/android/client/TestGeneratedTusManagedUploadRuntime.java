@@ -462,7 +462,7 @@ public class TestGeneratedTusManagedUploadRuntime {
                                                     }
                                                 ),
                                                 new GeneratedTusManagedUploadHeaderSet(
-                                                        false,
+                                                        true,
                                                         new GeneratedTusManagedUploadHeader[0]
                                                 )
                                         ),
@@ -499,7 +499,7 @@ public class TestGeneratedTusManagedUploadRuntime {
                                                     }
                                                 ),
                                                 new GeneratedTusManagedUploadHeaderSet(
-                                                        false,
+                                                        true,
                                                         new GeneratedTusManagedUploadHeader[0]
                                                 )
                                         ),
@@ -536,7 +536,7 @@ public class TestGeneratedTusManagedUploadRuntime {
                                                     }
                                                 ),
                                                 new GeneratedTusManagedUploadHeaderSet(
-                                                        false,
+                                                        true,
                                                         new GeneratedTusManagedUploadHeader[0]
                                                 )
                                         ),
