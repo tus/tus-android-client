@@ -71,6 +71,22 @@ final class Api2DevdockScenario {
         }
     }
 
+    static final class TerminationPlan {
+        final int expectedVerificationStatus;
+        final String method;
+        final int minimumDeleteRequestCount;
+        final int stopAfterAcceptedBytes;
+        final String verificationMethod;
+
+        TerminationPlan(JSONObject termination) throws JSONException {
+            expectedVerificationStatus = termination.getInt("expectedVerificationStatus");
+            method = termination.getString("method");
+            minimumDeleteRequestCount = termination.getInt("minimumDeleteRequestCount");
+            stopAfterAcceptedBytes = termination.getInt("stopAfterAcceptedBytes");
+            verificationMethod = termination.getString("verificationMethod");
+        }
+    }
+
     static TusAndroidUpload androidUpload(
             Activity activity,
             Uri uri,
@@ -227,6 +243,10 @@ final class Api2DevdockScenario {
         return new UploadCallbacksPlan(
                 scenario.getJSONObject("upload").getJSONObject("uploadCallbacks")
         );
+    }
+
+    static TerminationPlan termination(JSONObject uploadConfig) throws JSONException {
+        return new TerminationPlan(uploadConfig.getJSONObject("termination"));
     }
 
     static boolean uploadAddRequestId(JSONObject uploadConfig) throws JSONException {
