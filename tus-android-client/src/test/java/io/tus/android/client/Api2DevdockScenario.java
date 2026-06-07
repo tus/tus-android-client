@@ -229,6 +229,10 @@ final class Api2DevdockScenario {
         );
     }
 
+    static boolean uploadAddRequestId(JSONObject uploadConfig) throws JSONException {
+        return uploadConfig.getBoolean("addRequestId");
+    }
+
     static Map<String, Map<String, String>> uploadBodyHeadersByMethod(
             JSONObject uploadConfig
     ) throws JSONException {
@@ -246,6 +250,14 @@ final class Api2DevdockScenario {
         }
 
         return result;
+    }
+
+    static Map<String, String> uploadHeaders(JSONObject uploadConfig) throws JSONException {
+        return stringMap(uploadConfig.getJSONObject("headers"));
+    }
+
+    static String uploadRequestIdHeaderName(JSONObject uploadConfig) throws JSONException {
+        return uploadConfig.getString("requestIdHeaderName");
     }
 
     static String uploadCallbackEventKey(UploadCallbacksPlan plan, String... parts) {
