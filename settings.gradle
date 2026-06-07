@@ -1,1 +1,6 @@
 include ':example', ':tus-android-client'
+
+def siblingTusJavaClient = file('../tus-java-client')
+if (siblingTusJavaClient.exists()) {
+    includeBuild(siblingTusJavaClient)
+}
