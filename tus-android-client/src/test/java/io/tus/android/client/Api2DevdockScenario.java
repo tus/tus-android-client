@@ -229,6 +229,25 @@ final class Api2DevdockScenario {
         );
     }
 
+    static Map<String, Map<String, String>> uploadBodyHeadersByMethod(
+            JSONObject uploadConfig
+    ) throws JSONException {
+        final JSONObject bodyHeadersByMethod = uploadConfig.getJSONObject("bodyHeadersByMethod");
+        final Map<String, Map<String, String>> result =
+                new LinkedHashMap<String, Map<String, String>>();
+        final JSONArray methods = bodyHeadersByMethod.names();
+        if (methods == null) {
+            return result;
+        }
+
+        for (int index = 0; index < methods.length(); index++) {
+            final String method = methods.getString(index);
+            result.put(method, stringMap(bodyHeadersByMethod.getJSONObject(method)));
+        }
+
+        return result;
+    }
+
     static String uploadCallbackEventKey(UploadCallbacksPlan plan, String... parts) {
         final StringBuilder key = new StringBuilder();
         for (int index = 0; index < parts.length; index++) {
@@ -360,6 +379,21 @@ final class Api2DevdockScenario {
         final List<List<String>> result = new ArrayList<List<String>>();
         for (int index = 0; index < values.length(); index++) {
             result.add(stringList(values.getJSONArray(index)));
+        }
+
+        return result;
+    }
+
+    private static Map<String, String> stringMap(JSONObject values) throws JSONException {
+        final Map<String, String> result = new LinkedHashMap<String, String>();
+        final JSONArray names = values.names();
+        if (names == null) {
+            return result;
+        }
+
+        for (int index = 0; index < names.length(); index++) {
+            final String name = names.getString(index);
+            result.put(name, values.getString(name));
         }
 
         return result;
