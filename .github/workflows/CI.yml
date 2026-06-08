@@ -41,8 +41,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: 8398a7/action-slack@v3
-        with:
-          status: failure
+      - name: Send Slack notification
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_TEXT: >-
+            ${{ github.workflow }} failed for ${{ github.repository }} on ${{ github.ref_name }}:
+            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          node -e "process.stdout.write(JSON.stringify({ text: process.env.SLACK_TEXT }))" |
+            curl --fail-with-body -X POST -H 'Content-type: application/json' --data-binary @- "$SLACK_WEBHOOK_URL"
