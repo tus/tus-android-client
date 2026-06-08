@@ -109,6 +109,54 @@ final class Api2DevdockScenario {
         }
     }
 
+    static final class RetryOffsetRecoveryFailAfterResponsePlan {
+        final String message;
+        final String method;
+        final int occurrence;
+
+        RetryOffsetRecoveryFailAfterResponsePlan(JSONObject failAfterResponse)
+                throws JSONException {
+            message = failAfterResponse.getString("message");
+            method = failAfterResponse.getString("method");
+            occurrence = failAfterResponse.getInt("occurrence");
+        }
+    }
+
+    static final class RetryOffsetRecoveryRecoveryResponsePlan {
+        final String method;
+        final String offsetHeader;
+
+        RetryOffsetRecoveryRecoveryResponsePlan(JSONObject recoveryResponse)
+                throws JSONException {
+            method = recoveryResponse.getString("method");
+            offsetHeader = recoveryResponse.getString("offsetHeader");
+        }
+    }
+
+    static final class RetryOffsetRecoveryPlan {
+        final int expectedFailureCount;
+        final int expectedRecoveredOffset;
+        final int expectedRecoveryRequestCount;
+        final List<String> expectedRequestMethods;
+        final RetryOffsetRecoveryFailAfterResponsePlan failAfterResponse;
+        final RetryOffsetRecoveryRecoveryResponsePlan recoveryResponse;
+
+        RetryOffsetRecoveryPlan(JSONObject retryOffsetRecovery) throws JSONException {
+            expectedFailureCount = retryOffsetRecovery.getInt("expectedFailureCount");
+            expectedRecoveredOffset = retryOffsetRecovery.getInt("expectedRecoveredOffset");
+            expectedRecoveryRequestCount =
+                    retryOffsetRecovery.getInt("expectedRecoveryRequestCount");
+            expectedRequestMethods =
+                    stringList(retryOffsetRecovery.getJSONArray("expectedRequestMethods"));
+            failAfterResponse = new RetryOffsetRecoveryFailAfterResponsePlan(
+                    retryOffsetRecovery.getJSONObject("failAfterResponse")
+            );
+            recoveryResponse = new RetryOffsetRecoveryRecoveryResponsePlan(
+                    retryOffsetRecovery.getJSONObject("recoveryResponse")
+            );
+        }
+    }
+
     static TusAndroidUpload androidUpload(
             Activity activity,
             Uri uri,
@@ -305,6 +353,11 @@ final class Api2DevdockScenario {
     static RequestLifecycleHooksPlan requestLifecycleHooks(JSONObject uploadConfig)
             throws JSONException {
         return new RequestLifecycleHooksPlan(uploadConfig.getJSONObject("requestLifecycleHooks"));
+    }
+
+    static RetryOffsetRecoveryPlan retryOffsetRecovery(JSONObject uploadConfig)
+            throws JSONException {
+        return new RetryOffsetRecoveryPlan(uploadConfig.getJSONObject("retryOffsetRecovery"));
     }
 
     static String uploadCallbackEventKey(UploadCallbacksPlan plan, String... parts) {
