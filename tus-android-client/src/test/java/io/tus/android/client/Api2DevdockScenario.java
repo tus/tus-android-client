@@ -87,6 +87,28 @@ final class Api2DevdockScenario {
         }
     }
 
+    static final class RequestLifecycleHooksPlan {
+        final List<String> expectedAfterResponseMethods;
+        final List<Integer> expectedAfterResponseStatusCodes;
+        final List<String> expectedBeforeRequestMethods;
+        final List<String> ignoredRequestMethods;
+
+        RequestLifecycleHooksPlan(JSONObject requestLifecycleHooks) throws JSONException {
+            expectedAfterResponseMethods = stringList(
+                    requestLifecycleHooks.getJSONArray("expectedAfterResponseMethods")
+            );
+            expectedAfterResponseStatusCodes = integerList(
+                    requestLifecycleHooks.getJSONArray("expectedAfterResponseStatusCodes")
+            );
+            expectedBeforeRequestMethods = stringList(
+                    requestLifecycleHooks.getJSONArray("expectedBeforeRequestMethods")
+            );
+            ignoredRequestMethods = stringList(
+                    requestLifecycleHooks.getJSONArray("ignoredRequestMethods")
+            );
+        }
+    }
+
     static TusAndroidUpload androidUpload(
             Activity activity,
             Uri uri,
@@ -280,6 +302,11 @@ final class Api2DevdockScenario {
         return uploadConfig.getString("requestIdHeaderName");
     }
 
+    static RequestLifecycleHooksPlan requestLifecycleHooks(JSONObject uploadConfig)
+            throws JSONException {
+        return new RequestLifecycleHooksPlan(uploadConfig.getJSONObject("requestLifecycleHooks"));
+    }
+
     static String uploadCallbackEventKey(UploadCallbacksPlan plan, String... parts) {
         final StringBuilder key = new StringBuilder();
         for (int index = 0; index < parts.length; index++) {
@@ -402,6 +429,15 @@ final class Api2DevdockScenario {
         final List<String> result = new ArrayList<String>();
         for (int index = 0; index < values.length(); index++) {
             result.add(values.getString(index));
+        }
+
+        return result;
+    }
+
+    private static List<Integer> integerList(JSONArray values) throws JSONException {
+        final List<Integer> result = new ArrayList<Integer>();
+        for (int index = 0; index < values.length(); index++) {
+            result.add(values.getInt(index));
         }
 
         return result;
