@@ -1,1 +1,9 @@
 include ':example', ':tus-android-client'
+
+def companionTusJavaClient = [
+    file('../tus-java-client'),
+    file('tus-java-client')
+].find { it.exists() }
+if (companionTusJavaClient != null) {
+    includeBuild(companionTusJavaClient)
+}
