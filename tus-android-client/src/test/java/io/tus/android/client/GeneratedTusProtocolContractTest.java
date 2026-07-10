@@ -2,14 +2,18 @@ package io.tus.android.client;
 
 import android.app.Activity;
 
+import java.io.InputStream;
+import java.net.URL;
+import java.util.Scanner;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 
-import java.net.URL;
-
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(RobolectricTestRunner.class)
 public class GeneratedTusProtocolContractTest {
@@ -49,6 +53,38 @@ public class GeneratedTusProtocolContractTest {
                 findFeature(featureId);
             }
         }
+    }
+
+    @Test
+    public void shouldReferenceCanonicalContractFixture() {
+        String contractJson = canonicalContractJson();
+
+        for (GeneratedTusProtocolContract.GeneratedTusProtocolOperation operation
+                : GeneratedTusProtocolContract.OPERATIONS) {
+            assertCanonicalValue(contractJson, "operationId", operation.operationId);
+        }
+        for (GeneratedTusProtocolContract.GeneratedTusClientFeature feature
+                : GeneratedTusProtocolContract.CLIENT_FEATURES) {
+            assertCanonicalValue(contractJson, "featureId", feature.featureId);
+        }
+        for (GeneratedTusProtocolContract.GeneratedTusManagedUploadProofCase proofCase
+                : GeneratedTusProtocolContract.MANAGED_UPLOAD_PROOF_CASES) {
+            assertCanonicalValue(contractJson, "scenarioId", proofCase.scenarioId);
+        }
+    }
+
+    private static String canonicalContractJson() {
+        InputStream input = GeneratedTusProtocolContractTest.class.getResourceAsStream(
+                "/api2_tus_contract.json");
+        assertNotNull(input);
+
+        try (Scanner scanner = new Scanner(input, "UTF-8").useDelimiter("\\A")) {
+            return scanner.hasNext() ? scanner.next() : "";
+        }
+    }
+
+    private static void assertCanonicalValue(String contractJson, String key, String value) {
+        assertTrue(contractJson.contains("\"" + key + "\": \"" + value + "\""));
     }
 
     private static GeneratedTusProtocolContract.GeneratedTusClientFeature findFeature(
