@@ -27,6 +27,11 @@ public class TusAndroidUpload extends TusUpload {
         cursor.moveToFirst();
         String name = cursor.getString(nameIndex);
 
+        String mimType = resolver.getType(uri);
+        if(mimType == null){
+            mimType = "application/octet-stream";
+        }
+
         // On some files, ContentResolver#query will report the wrong filesize
         // even though the InputStream reads the correct length. This discrepancy
         // causes mismatching upload offsets when the upload should be finished.
@@ -52,6 +57,7 @@ public class TusAndroidUpload extends TusUpload {
 
         Map<String, String> metadata = new HashMap<>();
         metadata.put("filename", name);
+        metadata.put("filetype", mimType);
         setMetadata(metadata);
 
         cursor.close();
