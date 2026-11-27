@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
             client = new TusClient();
             client.setUploadCreationURL(new URL("https://tusd.tusdemo.net/files/"));
             client.enableResuming(new TusPreferencesURLStore(pref));
+            client.enableRemoveFingerprintOnSuccess();
         } catch (Exception e) {
             showError(e);
         }
